@@ -1,0 +1,31 @@
+<script>
+	customElements.define('album-list',
+		class extends HTMLElement {
+			constructor() {
+				super();
+			}
+
+			connectedCallback() {
+			}
+
+			get items() {
+				let items = this._items;
+				return items;
+			}
+
+			set items(items) {
+				this._items = items;
+
+				this.innerHTML = "";
+				let that = this;
+				this._items.forEach(function (item, index) {
+					let entry = that.appendChild(document.createElement("album-entry"));
+					entry.setAttribute("name", item.name);
+					entry.setAttribute("description", item.description);
+					entry.images = item.images;
+				});
+				this.appendChild(document.createElement("div"));
+			}
+		}
+	);
+</script>

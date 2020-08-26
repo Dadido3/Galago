@@ -1,0 +1,41 @@
+<template id="gallery-image-template">
+	<div ref="img">
+	</div>
+	<div ref="overlay">
+		<h1>Bla</h1>
+		<span>This is just a test</span>
+	</div>
+</template>
+
+<script>
+	customElements.define('gallery-image',
+		class extends HTMLElement {
+			constructor() {
+				super();
+
+				let template = document.getElementById('gallery-image-template');
+				let clone = template.content.cloneNode(true);
+				this.templateClone = clone;
+				// Store references to DOM elements. The constructors of the sub web components will only be called on appendChild,
+				// so it's safe to query elements by the ref attribute, even if some sub components contains the same ref attribute.
+				this.refs = getTemplateRefs(clone);
+			}
+
+			connectedCallback() {
+				this.appendChild(this.templateClone);
+			}
+
+			static get observedAttributes() { return ["width", "height", "image"]; }
+
+			attributeChangedCallback(name, oldValue, newValue) {
+				switch (name) {
+					case "image": this.refs["img"].style.backgroundImage = "url('" + newValue + "')";
+					case "width": this.refs["img"].style["width"] = newValue + "px";
+					case "height": this.refs["img"].style["height"] = newValue + "px";
+				}
+
+			}
+
+		}
+	);
+</script>

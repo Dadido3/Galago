@@ -1,0 +1,16 @@
+{
+    "cSpell.words": [
+        "Debugf",
+        "Infof",
+        "Prettyfier",
+        "Vogel",
+        "Warnf",
+        "configdb",
+        "gohtml",
+        "mattn",
+        "semver"
+    ],
+    "licenser.author": "David Vogel",
+    "licenser.license": "GPLv2",
+    "licenser.projectName": "galago"
+}

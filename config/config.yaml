@@ -1,0 +1,7 @@
+Server:
+    ListenAddress: :8090
+Sources:
+    blabla:
+        Name: "Blbablaaasdd"
+        Type: folder
+        Path: "./images/"

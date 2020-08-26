@@ -1,0 +1,33 @@
+<script>
+	customElements.define('gallery-list',
+		class extends HTMLElement {
+			constructor() {
+				super();
+			}
+
+			connectedCallback() {
+			}
+
+			get value() {
+				let items = this.items;
+				return items;
+			}
+
+			set value(items) {
+				this.items = items;
+
+				this.innerHTML = "";
+				let that = this;
+				this.items.forEach(function (item, index) {
+					let entry = that.appendChild(document.createElement("gallery-image"));
+					let height = 400; // px
+					let width = height / item.height * item.width
+					entry.setAttribute("width", width);
+					entry.setAttribute("height", height);
+					entry.setAttribute("image", item.image);
+				});
+				this.appendChild(document.createElement("div"));
+			}
+		}
+	);
+</script>

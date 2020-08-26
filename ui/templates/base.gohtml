@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>{{ template "title" }} | galago</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="/static/css/w3.css">
+	<link rel="stylesheet" href="/static/css/gallery.css">
+	<link rel="stylesheet" href="/static/css/album.css">
+	<script src="/static/js/font-awesome-5.13.0.all.min.js"></script>
+	<script src="/static/js/util.js"></script>
+	<script src="/static/js/jquery-3.4.1.min.js"></script>
+	{{ template "components" }}
+</head>
+
+<body>
+	<div class="w3-main w3-light-gray">
+
+		{{ template "content" . }}
+
+	</div>
+
+</body>
+
+</html>

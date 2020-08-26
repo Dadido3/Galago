@@ -1,0 +1,33 @@
+<script>
+	customElements.define('album-preview',
+		class extends HTMLElement {
+			constructor() {
+				super();
+			}
+
+			connectedCallback() {
+			}
+
+			get value() {
+				let items = this.items;
+				return items;
+			}
+
+			set value(items) {
+				this.items = items;
+
+				this.innerHTML = "";
+				this.style.backgroundImage = "url('" + items[0].image + "')";
+				let that = this;
+				this.items.forEach(function (item, index) {
+					if (index == 0) return;
+					let div = document.createElement("div");
+					let img = div.appendChild(document.createElement("img"));
+					let entry = that.appendChild(div);
+					img.setAttribute("src", item.image);
+				});
+			}
+
+		}
+	);
+</script>

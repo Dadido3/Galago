@@ -1,0 +1,46 @@
+<template id="album-entry-template">
+	<album-preview ref="preview" style="width: 400px; height: 400px; display: block;"></album-preview>
+	<h1 ref="name"></h1>
+	<span ref="description"></span>
+</template>
+<script>
+	customElements.define('album-entry',
+		class extends HTMLElement {
+			constructor() {
+				super();
+
+				let template = document.getElementById('album-entry-template');
+				let clone = template.content.cloneNode(true);
+				this.templateClone = clone;
+				// Store references to DOM elements. The constructors of the sub web components will only be called on appendChild,
+				// so it's safe to query elements by the ref attribute, even if some sub components contains the same ref attribute.
+				this.refs = getTemplateRefs(clone);
+			}
+
+			connectedCallback() {
+				this.appendChild(this.templateClone);
+			}
+
+			get images() {
+				let images = this._images;
+				return images;
+			}
+
+			set images(images) {
+				this._images = images;
+				this.refs["preview"].value = images;
+			}
+
+			static get observedAttributes() { return ["name", "description"]; }
+
+			attributeChangedCallback(name, oldValue, newValue) {
+				switch (name) {
+					case "name": this.refs["name"].innerText = newValue;
+					case "description": this.refs["description"].innerText = newValue;
+				}
+
+			}
+
+		}
+	);
+</script>
