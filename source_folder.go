@@ -81,6 +81,12 @@ func (s SourceFolder) Children() ([]Element, error) {
 	return album.Children()
 }
 
+// Path returns the absolute path of the element, but not the filesystem path.
+// For details see ElementPath.
+func (s SourceFolder) Path() string {
+	return ElementPath(s)
+}
+
 func (s SourceFolder) childrenRecursive(parent Element, path string) (Album, error) {
 	album := Album{
 		parent:  parent,
@@ -161,6 +167,12 @@ func (si SourceFolderImage) Parent() Element {
 func (si SourceFolderImage) Children() ([]Element, error) {
 	//return []Element{}, fmt.Errorf("Images don't contain children")
 	return []Element{}, nil
+}
+
+// Path returns the absolute path of the element, but not the filesystem path.
+// For details see ElementPath.
+func (si SourceFolderImage) Path() string {
+	return ElementPath(si)
 }
 
 // Container returns whether an element can contain other elements or not.

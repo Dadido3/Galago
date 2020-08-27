@@ -26,6 +26,7 @@ import (
 type Element interface {
 	Parent() Element                       // Returns the parent element
 	Children() ([]Element, error)          // Elements can contain more elements (Like sources or albums)
+	Path() string                          // Returns the absolute path of the element, but not the filesystem path
 	Container() bool                       // Returns whether an element can contain other elements or not
 	Name() string                          // The name that is shown to the user
 	URLName() string                       // The name/identifier used in URLs
@@ -62,11 +63,14 @@ func FilterContainers(ee []Element) []Element {
 }
 
 // TraverseElements will traverse through the children of elements until the element at path is reached.
-// An example for a path: root/album1/album2/img.jpg
+// As the path is relative to the given origin, the leading part of the path defines the first child element.
+// As an edge case, an empty path points to the origin.
+//
+// An example for a path: animals/cats/img.jpg
 func TraverseElements(origin Element, path string) (Element, error) {
 	pathElements := strings.Split(path, "/")
 
-	// If the path is empty, return the current object
+	// Edge case: If the path is empty, return the current object
 	if path == "" {
 		return origin, nil
 	}
@@ -81,5 +85,19 @@ func TraverseElements(origin Element, path string) (Element, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("No matching element found for given path")
+	return nil, fmt.Errorf("No matching element found for the given path")
+}
+
+// ElementPath returns the absolute path of the element.
+// This will not return the file system path, but the path that an object can be addressed inside of galago.
+// This will include the root element, that has an empty name.
+//
+// Example output: /source123/cats/cat.jpg
+func ElementPath(e Element) string {
+	parent := e.Parent()
+
+	if parent == nil {
+		return e.URLName()
+	}
+	return strings.Join([]string{ElementPath(parent), e.URLName()}, "/")
 }

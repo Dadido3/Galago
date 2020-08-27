@@ -36,6 +36,12 @@ func (a Album) Children() ([]Element, error) {
 	return a.children, nil
 }
 
+// Path returns the absolute path of the element, but not the filesystem path.
+// For details see ElementPath.
+func (a Album) Path() string {
+	return ElementPath(a)
+}
+
 // Container returns whether an element can contain other elements or not.
 func (a Album) Container() bool {
 	return true
