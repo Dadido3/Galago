@@ -4,6 +4,9 @@
 
 {{ template "component-gallery-image.html" }}
 {{ template "component-gallery-list.html" }}
+{{ template "component-album-preview.html" }}
+{{ template "component-album-list.html" }}
+{{ template "component-album-entry.html" }}
 
 {{ end }}
 
@@ -14,34 +17,28 @@
 	<a href="#" class="w3-bar-item w3-button"><i class="fa fa-download"></i></a>
 </div>
 
+<album-list id="album-list"></album-list>
+
 <gallery-list id="gallery-list"></gallery-list>
 
 <!-- Main handler -->
 <script>
 	class MainLogic {
 		constructor() {
-			let gallery = document.getElementById("gallery-list");
+			let albumList = document.getElementById("album-list");
+			albumList.items = [
+				{{ $element := .RootElement.Traverse .Path }}
+				{{ range $key, $value := (filterContainers $element.Children) }}
+					{name: {{ $value.Name }}, description: "aeaefaefaef", images: [{width: 200, height: 300, image: "https://picsum.photos/400/600"}, {width: 200, height: 400, image: "https://picsum.photos/400/800"}]},
+				{{ end }}
+			];
 
-			gallery.value = [
-				{width: 200, height: 300, image: "https://picsum.photos/400/600"},
-				{width: 250, height: 200, image: "https://picsum.photos/500/400"},
-				{width: 300, height: 500, image: "https://picsum.photos/600/1000"},
-				{width: 400, height: 200, image: "https://picsum.photos/800/400"},
-				{width: 200, height: 500, image: "https://picsum.photos/400/1000"},
-				{width: 500, height: 300, image: "https://picsum.photos/1000/600"},
-				{width: 200, height: 300, image: "https://picsum.photos/400/600"},
-				{width: 250, height: 200, image: "https://picsum.photos/500/400"},
-				{width: 300, height: 500, image: "https://picsum.photos/600/1000"},
-				{width: 200, height: 300, image: "https://picsum.photos/400/600"},
-				{width: 250, height: 200, image: "https://picsum.photos/500/400"},
-				{width: 300, height: 500, image: "https://picsum.photos/600/1000"},
-				{width: 400, height: 200, image: "https://picsum.photos/800/400"},
-				{width: 200, height: 500, image: "https://picsum.photos/400/1000"},
-				{width: 500, height: 300, image: "https://picsum.photos/1000/600"},
-				{width: 400, height: 200, image: "https://picsum.photos/800/400"},
-				{width: 200, height: 500, image: "https://picsum.photos/400/1000"},
-				{width: 500, height: 300, image: "https://picsum.photos/1000/600"},
-				{width: 200, height: 400, image: "https://picsum.photos/400/800"}
+			let galleryList = document.getElementById("gallery-list");
+			galleryList.value = [
+				{{ $element := .RootElement.Traverse .Path }}
+				{{ range $key, $value := (filterImages $element.Children) }}
+					{width: 200, height: 300, image: "https://picsum.photos/400/600"},
+				{{ end }}
 			];
 		}
 	}

@@ -56,10 +56,14 @@ func (t *uiTemplate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	//clone = template.Must(clone.ParseGlob(filepath.Join(".", "ui", "templates", "webcomponents", "*.html")))
 	//t.Template = template.Must(clone.ParseFiles(filepath.Join(".", "ui", "templates", "pages", t.filename))) // TODO: Disable "debug" template parsing on each request
 
+	//path := mux.Vars(r)["path"]
+
 	d := struct {
 		RootElement Album
+		Path        string
 	}{
 		RootElement: RootElement,
+		Path:        r.URL.Path,
 	}
 
 	if err := t.Template.ExecuteTemplate(w, "base.gohtml", d); err != nil {
@@ -76,5 +80,6 @@ func serverUIInit() {
 	//router.Handle("/login", auth.LoginHandler(storage.StorageSessions, storage.StorageUsers))
 	//router.Handle("/logout", auth.LogoutHandler(storage.StorageSessions))
 
-	router.Handle("/", newUITemplate("index.gohtml"))
+	router.Handle("/", http.StripPrefix("/", newUITemplate("gallery.gohtml")))
+	router.PathPrefix("/gallery/").Handler(http.StripPrefix("/gallery/", newUITemplate("gallery.gohtml")))
 }
