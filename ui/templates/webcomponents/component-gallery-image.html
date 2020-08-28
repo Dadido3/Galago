@@ -2,8 +2,8 @@
 	<div ref="img">
 	</div>
 	<div ref="overlay">
-		<h1>Bla</h1>
-		<span>This is just a test</span>
+		<h1 ref="name">Bla</h1>
+		<span ref="description">This is just a test</span>
 	</div>
 </template>
 
@@ -23,6 +23,24 @@
 
 			connectedCallback() {
 				this.appendChild(this.templateClone);
+			}
+
+			get name() {
+				return this._name;
+			}
+
+			set name(name) {
+				this._name = name;
+				this.refs["name"].innerText = name;
+			}
+
+			get description() {
+				return this._description;
+			}
+
+			set description(description) {
+				this._description = description;
+				this.refs["description"].innerText = description;
 			}
 
 			static get observedAttributes() { return ["width", "height", "image"]; }

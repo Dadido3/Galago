@@ -19,8 +19,8 @@ package main
 
 import (
 	"fmt"
-	"image"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -33,7 +33,7 @@ func init() {
 type SourceFolder struct {
 	parent        Element
 	name, urlName string
-	path          string
+	filePath      string
 }
 
 // CreateSourceFolder returns a new instance of a folder source.
@@ -58,10 +58,10 @@ func CreateSourceFolder(parent Element, urlName string, c map[string]interface{}
 	}
 
 	return SourceFolder{
-		parent:  parent,
-		name:    name,
-		urlName: urlName,
-		path:    path,
+		parent:   parent,
+		name:     name,
+		urlName:  urlName,
+		filePath: path,
 	}, nil
 }
 
@@ -72,58 +72,54 @@ func (s SourceFolder) Parent() Element {
 
 // Children returns the folders and images of a source.
 func (s SourceFolder) Children() ([]Element, error) {
-	album, err := s.childrenRecursive(s, s.path)
+	return s.childrenRecursive(s, s.filePath)
+}
+
+func (s SourceFolder) childrenRecursive(parent Element, path string) ([]Element, error) {
+	elements := []Element{}
+
+	files, err := ioutil.ReadDir(path)
 	if err != nil {
-		return []Element{}, err
+		return nil, err
 	}
 
-	// Return the children, not the album itself
-	return album.Children()
+	for _, file := range files {
+		if file.IsDir() {
+			// Is directory
+			album := &Album{
+				parent:  parent,
+				name:    file.Name(),
+				urlName: strings.ToLower(file.Name()),
+			}
+			children, err := s.childrenRecursive(album, filepath.Join(path, file.Name()))
+			if err != nil {
+				return nil, err // Just return the error, otherwise the error message may get very long
+			}
+			album.children = children
+			elements = append(elements, album)
+		} else {
+			// Is file
+			// Check if file extension is one of the supported formats
+			ext := filepath.Ext(file.Name())
+			if validExtensions[ext] {
+				elements = append(elements, &SourceFolderImage{
+					parent:   parent,
+					name:     file.Name(),
+					urlName:  strings.ToLower(file.Name()),
+					s:        s,
+					filePath: filepath.Join(path, file.Name()),
+				})
+			}
+		}
+	}
+
+	return elements, nil
 }
 
 // Path returns the absolute path of the element, but not the filesystem path.
 // For details see ElementPath.
 func (s SourceFolder) Path() string {
 	return ElementPath(s)
-}
-
-func (s SourceFolder) childrenRecursive(parent Element, path string) (Album, error) {
-	album := Album{
-		parent:  parent,
-		name:    filepath.Base(path),
-		urlName: strings.ToLower(filepath.Base(path)),
-	}
-
-	files, err := ioutil.ReadDir(path)
-	if err != nil {
-		return album, err
-	}
-
-	for _, file := range files {
-		if file.IsDir() {
-			// Is directory
-			childAlbum, err := s.childrenRecursive(album, filepath.Join(path, file.Name()))
-			if err != nil {
-				return album, err // Just return the error, otherwise the error message may get very long
-			}
-			album.children = append(album.children, childAlbum)
-		} else {
-			// Is file
-			// Check if file extension is one of the supported formats
-			ext := filepath.Ext(file.Name())
-			if validExtensions[ext] {
-				album.children = append(album.children, SourceFolderImage{
-					parent:  parent,
-					name:    file.Name(),
-					urlName: strings.ToLower(file.Name()),
-					s:       s,
-					path:    filepath.Join(path, file.Name()),
-				})
-			}
-		}
-	}
-
-	return album, nil
 }
 
 // Container returns whether an element can contain other elements or not.
@@ -147,7 +143,7 @@ func (s SourceFolder) Traverse(path string) (Element, error) {
 }
 
 func (s SourceFolder) String() string {
-	return fmt.Sprintf("{SourceFolder: %q}", s.path)
+	return fmt.Sprintf("{SourceFolder %q: %q}", s.Path(), s.filePath)
 }
 
 // SourceFolderImage represents an image that is contained in a locally accessible folder.
@@ -155,7 +151,7 @@ type SourceFolderImage struct {
 	parent        Element
 	name, urlName string
 	s             SourceFolder
-	path          string
+	filePath      string // The path to the file in the filesystem
 }
 
 // Parent returns the parent element, duh.
@@ -163,7 +159,7 @@ func (si SourceFolderImage) Parent() Element {
 	return si.parent
 }
 
-// Children returns nothing, as images don't contain more elements.
+// Children returns nothing, as images don't contain other elements.
 func (si SourceFolderImage) Children() ([]Element, error) {
 	//return []Element{}, fmt.Errorf("Images don't contain children")
 	return []Element{}, nil
@@ -178,11 +174,6 @@ func (si SourceFolderImage) Path() string {
 // Container returns whether an element can contain other elements or not.
 func (si SourceFolderImage) Container() bool {
 	return false
-}
-
-// LoadImage loads and returns the image from the source.
-func (si SourceFolderImage) LoadImage() image.Image {
-	return image.Rect(0, 0, 100, 100) // TODO: Implement image loading
 }
 
 // Name returns the name that is shown to the user.
@@ -200,6 +191,16 @@ func (si SourceFolderImage) Traverse(path string) (Element, error) {
 	return TraverseElements(si, path)
 }
 
+// Hash returns the unique hash that stays the same as long as the file doesn't change.
+func (si SourceFolderImage) Hash() string {
+	return ""
+}
+
+// Load returns the original and unaltered image file from the source.
+func (si SourceFolderImage) Load() (*os.File, error) {
+	return os.Open(si.filePath)
+}
+
 func (si SourceFolderImage) String() string {
-	return fmt.Sprintf("{SourceFolderImage: %q}", si.path)
+	return fmt.Sprintf("{SourceFolderImage %q: %q}", si.Path(), si.filePath)
 }

@@ -62,6 +62,20 @@ func FilterContainers(ee []Element) []Element {
 	return result
 }
 
+// ErrorNotFound is returned when a path points to a non existing element.
+type ErrorNotFound struct {
+	path string
+}
+
+func (e *ErrorNotFound) Error() string {
+	return fmt.Sprintf("Element %q doesn't exist", e.path)
+}
+
+// Prepend prepends an element name to the error's path.
+func (e *ErrorNotFound) Prepend(p string) {
+	e.path = strings.Join([]string{p, e.path}, "/")
+}
+
 // TraverseElements will traverse through the children of elements until the element at path is reached.
 // As the path is relative to the given origin, the leading part of the path defines the first child element.
 // As an edge case, an empty path points to the origin.
@@ -81,11 +95,16 @@ func TraverseElements(origin Element, path string) (Element, error) {
 	}
 	for _, child := range children {
 		if child.URLName() == pathElements[0] {
-			return TraverseElements(child, strings.Join(pathElements[1:], "/"))
+			res, err := TraverseElements(child, strings.Join(pathElements[1:], "/"))
+			if err, ok := err.(*ErrorNotFound); ok {
+				err.Prepend(pathElements[0])
+				return nil, err
+			}
+			return res, err
 		}
 	}
 
-	return nil, fmt.Errorf("No matching element found for the given path")
+	return nil, &ErrorNotFound{pathElements[0]}
 }
 
 // ElementPath returns the absolute path of the element.

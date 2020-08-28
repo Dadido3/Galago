@@ -20,8 +20,10 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
 	"path/filepath"
+	"strings"
 )
 
 var uiTemplates *template.Template
@@ -74,11 +76,52 @@ func (t *uiTemplate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type uiImage struct{}
+
+func (t *uiImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	log.Debug(r.URL.Path)
+
+	element, err := RootElement.Traverse(r.URL.Path)
+	if err != nil {
+		log.Error(err)
+		http.Error(w, err.Error(), http.StatusNotFound) // Assume the error is because the element was not found
+		return
+	}
+
+	image, ok := element.(Image)
+	if !ok {
+		err := fmt.Errorf("Element %v is not an image", element)
+		log.Error(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	imageFile, err := image.Load()
+	if err != nil {
+		log.Error(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer imageFile.Close()
+
+	switch strings.ToLower(filepath.Ext(imageFile.Name())) {
+	case ".jpg", ".jpeg":
+		w.Header().Set("Content-Type", "image/jpeg")
+	case ".png":
+		w.Header().Set("Content-Type", "image/png")
+	}
+
+	io.Copy(w, imageFile)
+}
+
 func serverUIInit() {
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(".", "ui", "static")))))
 
 	//router.Handle("/login", auth.LoginHandler(storage.StorageSessions, storage.StorageUsers))
 	//router.Handle("/logout", auth.LogoutHandler(storage.StorageSessions))
+
+	router.PathPrefix("/image/").Handler(http.StripPrefix("/image/", &uiImage{}))
 
 	router.Handle("/", http.StripPrefix("/", newUITemplate("gallery.gohtml")))
 	router.PathPrefix("/gallery/").Handler(http.StripPrefix("/gallery/", newUITemplate("gallery.gohtml")))

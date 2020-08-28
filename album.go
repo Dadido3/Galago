@@ -64,10 +64,10 @@ func (a Album) Traverse(path string) (Element, error) {
 
 // FilterAlbums takes a list of elements, and returns only the albums.
 // The content of the albums stays untouched.
-func FilterAlbums(ee []Element) []Album {
-	result := []Album{}
+func FilterAlbums(ee []Element) []*Album {
+	result := []*Album{}
 	for _, element := range ee {
-		if album, ok := element.(Album); ok {
+		if album, ok := element.(*Album); ok {
 			result = append(result, album)
 		}
 	}
@@ -75,5 +75,5 @@ func FilterAlbums(ee []Element) []Album {
 }
 
 func (a Album) String() string {
-	return fmt.Sprintf("{Album: %v}", a.children)
+	return fmt.Sprintf("{Album %q: %v children}", a.Path(), len(a.children))
 }

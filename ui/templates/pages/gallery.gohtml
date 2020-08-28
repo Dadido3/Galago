@@ -29,7 +29,7 @@
 			albumList.items = [
 				{{ $element := .RootElement.Traverse .Path }}
 				{{ range $key, $value := (filterContainers $element.Children) }}
-					{name: {{ $value.Name }}, description: "aeaefaefaef", images: [{width: 200, height: 300, image: "https://picsum.photos/400/600"}, {width: 200, height: 400, image: "https://picsum.photos/400/800"}]},
+					{name: {{ $value.Name }}, description: "aeaefaefaef", images: [{width: 200, height: 300, image: "/image{{ $value.Path }}"}, {width: 200, height: 400, image: "https://picsum.photos/400/800"}]},
 				{{ end }}
 			];
 
@@ -37,7 +37,7 @@
 			galleryList.value = [
 				{{ $element := .RootElement.Traverse .Path }}
 				{{ range $key, $value := (filterImages $element.Children) }}
-					{width: 200, height: 300, image: "https://picsum.photos/400/600"},
+					{name: {{ $value.Name }}, description: "aeaefaefaef", width: 200, height: 300, image: "/image{{ $value.Path }}"},
 				{{ end }}
 			];
 		}

@@ -17,12 +17,15 @@
 
 package main
 
-import "image"
+import (
+	"os"
+)
 
 // Image represents an image object.
 // Sources are supposed to implement this type.
 type Image interface {
-	LoadImage() image.Image
+	Hash() string            // Unique hash that stays the same as long as the file doesn't change
+	Load() (*os.File, error) // Returns the original and unaltered image file
 }
 
 // FilterImages takes a list of elements, and returns only the images.
