@@ -33,6 +33,7 @@ func init() {
 		"filterImages":     FilterImages,
 		"filterNonEmpty":   FilterNonEmpty,
 		"filterContainers": FilterContainers,
+		"imageToDataURI":   ImageToDataURI,
 	})
 
 	uiTemplates = template.Must(uiTemplates.ParseGlob(filepath.Join(".", "ui", "templates", "*.*html")))

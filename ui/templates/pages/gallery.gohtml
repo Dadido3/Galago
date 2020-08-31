@@ -38,6 +38,7 @@
 				{{ $element := .RootElement.Traverse .Path }}
 				{{ range $key, $value := (filterImages $element.Children) }}
 					{name: {{ $value.Name }}, description: "aeaefaefaef", width: {{ $value.Width }}, height: {{ $value.Height }}, image: "/cached/{{ $value.Hash }}"},
+					{name: {{ $value.Name }}, description: "aeaefaefaef", width: {{ $value.Width }}, height: {{ $value.Height }}, image: "{{ imageToDataURI $value }}"},
 				{{ end }}
 			];
 		}

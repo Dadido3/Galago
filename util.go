@@ -17,7 +17,12 @@
 
 package main
 
-import "strings"
+import (
+	"encoding/base64"
+	"fmt"
+	"io/ioutil"
+	"strings"
+)
 
 // ExtToMIME returns the MIME media type of a given file extension.
 // Example: ".jpg" returns "image/jpeg".
@@ -27,7 +32,26 @@ func ExtToMIME(ext string) string {
 		return "image/jpeg"
 	case ".png":
 		return "image/png"
+	case ".bmp":
+		return "image/bmp"
 	}
 
 	return "application/octet-stream"
+}
+
+// ImageToDataURI takes the result from FileContent and returns an data URI that can be embedded into HTML or CSS.
+// This will close the stream f.
+func ImageToDataURI(img Image) (string, error) {
+	f, mime, err := img.FileContent(ImageSizeNano)
+	if err != nil {
+		return "", fmt.Errorf("Couldn't get file of image %v: %w", img, err)
+	}
+	defer f.Close()
+
+	buf, err := ioutil.ReadAll(f)
+	if err != nil {
+		return "", fmt.Errorf("Couldn't read file content of image %v: %w", img, err)
+	}
+
+	return fmt.Sprintf("data:%v;base64,%v", mime, base64.StdEncoding.EncodeToString(buf)), nil
 }
