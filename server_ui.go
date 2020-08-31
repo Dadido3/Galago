@@ -23,7 +23,6 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
-	"strings"
 )
 
 var uiTemplates *template.Template
@@ -97,7 +96,7 @@ func (t *uiImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	imageFile, err := image.Load()
+	imageFile, mime, err := image.FileContent(ImageSizeOriginal)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -105,12 +104,7 @@ func (t *uiImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer imageFile.Close()
 
-	switch strings.ToLower(filepath.Ext(imageFile.Name())) {
-	case ".jpg", ".jpeg":
-		w.Header().Set("Content-Type", "image/jpeg")
-	case ".png":
-		w.Header().Set("Content-Type", "image/png")
-	}
+	w.Header().Set("Content-Type", mime)
 
 	io.Copy(w, imageFile)
 }

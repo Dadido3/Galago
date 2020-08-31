@@ -25,6 +25,10 @@ import (
 	"runtime"
 	"time"
 
+	_ "image/bmp"
+	_ "image/jpeg"
+	_ "image/png"
+
 	"github.com/Dadido3/configdb"
 	"github.com/coreos/go-semver/semver"
 	"github.com/gorilla/mux"
@@ -78,6 +82,12 @@ func main() {
 			return fmt.Sprintf("%s():%d", f.Function, f.Line), ""
 		},
 	})
+
+	var cachePath string
+	if err := conf.Get(".Cache.Path", &cachePath); err != nil {
+		log.Fatalf("Can't load cache path from config files: %v", err)
+	}
+	cache = NewCache(cachePath)
 
 	// Add routes to the webserver
 	serverUIInit()

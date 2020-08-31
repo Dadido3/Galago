@@ -1,7 +1,9 @@
 Server:
     ListenAddress: :8090
+Cache:
+    Path: "./cache/"
 Sources:
     blabla:
         Name: "Blbablaaasdd"
         Type: folder
-        Path: "./images/"
+        Path: "./example-images/"

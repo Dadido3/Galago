@@ -1,13 +1,16 @@
 {
     "cSpell.words": [
         "Debugf",
+        "Embeddable",
         "Infof",
+        "Lanczos",
         "Prettyfier",
         "Vogel",
         "Warnf",
         "configdb",
         "gohtml",
         "mattn",
+        "nfnt",
         "semver"
     ],
     "licenser.author": "David Vogel",

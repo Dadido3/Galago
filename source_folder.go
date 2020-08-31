@@ -18,7 +18,10 @@
 package main
 
 import (
+	"bytes"
+	"crypto/sha256"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -102,13 +105,25 @@ func (s SourceFolder) childrenRecursive(parent Element, path string) ([]Element,
 			// Check if file extension is one of the supported formats
 			ext := filepath.Ext(file.Name())
 			if validExtensions[ext] {
-				elements = append(elements, &SourceFolderImage{
+				img := &SourceFolderImage{
 					parent:   parent,
 					name:     file.Name(),
 					urlName:  strings.ToLower(file.Name()),
 					s:        s,
 					filePath: filepath.Join(path, file.Name()),
-				})
+					fileInfo: file,
+				}
+				cacheEntry, err := cache.QueryCacheEntry(img.Hash())
+				if err != nil {
+					cacheEntry, err = cache.PrepareAndStoreImage(img)
+					if err != nil {
+						log.Warnf("Can't create cache for image %v: %v", img, err)
+					}
+				}
+				if cacheEntry != nil {
+					img.cacheEntry = *cacheEntry
+				}
+				elements = append(elements, img)
 			}
 		}
 	}
@@ -152,6 +167,8 @@ type SourceFolderImage struct {
 	name, urlName string
 	s             SourceFolder
 	filePath      string // The path to the file in the filesystem
+	fileInfo      os.FileInfo
+	cacheEntry    CacheEntry
 }
 
 // Parent returns the parent element, duh.
@@ -191,14 +208,46 @@ func (si SourceFolderImage) Traverse(path string) (Element, error) {
 	return TraverseElements(si, path)
 }
 
-// Hash returns the unique hash that stays the same as long as the file doesn't change.
+// Hash returns a unique hash that stays the same as long as the file doesn't change.
 func (si SourceFolderImage) Hash() string {
-	return ""
+	h := sha256.New()
+	h.Write([]byte(fmt.Sprintf("SourceFolderImage %q %v", si.filePath, si.fileInfo.ModTime()))) // This should be unique enough
+	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
-// Load returns the original and unaltered image file from the source.
-func (si SourceFolderImage) Load() (*os.File, error) {
-	return os.Open(si.filePath)
+// Width of the original image.
+func (si SourceFolderImage) Width() int {
+	return si.cacheEntry.Width
+}
+
+// Height of the original image.
+func (si SourceFolderImage) Height() int {
+	return si.cacheEntry.Height
+}
+
+// FileContent returns the compressed image file.
+func (si SourceFolderImage) FileContent(s imageSize) (io.ReadCloser, string, error) {
+	switch s {
+	case ImageSizeOriginal:
+		f, err := os.Open(si.filePath)
+		if err != nil {
+			return nil, "", err
+		}
+		return f, ExtToMIME(filepath.Ext(f.Name())), err
+
+	case ImageSizeReduced:
+		f, err := cache.QueryImage(si.Hash())
+		if err != nil {
+			return nil, "", err
+		}
+		return f, ExtToMIME(filepath.Ext(f.Name())), err
+
+	case ImageSizeNano:
+		r := ioutil.NopCloser(bytes.NewReader([]byte(si.cacheEntry.NanoBitmap)))
+		return r, "image/bmp", nil
+	}
+
+	return nil, "", fmt.Errorf("Invalid image size %v", s)
 }
 
 func (si SourceFolderImage) String() string {

@@ -18,14 +18,26 @@
 package main
 
 import (
-	"os"
+	"io"
 )
 
-// Image represents an image object.
-// Sources are supposed to implement this type.
+type imageSize int
+
+// Image size enumeration.
+const (
+	ImageSizeOriginal imageSize = iota // Image in its original size
+	ImageSizeReduced                   // Image in its reduced size (Cached version)
+	ImageSizeNano                      // Really small version of the image that can be embedded into HTML. Can be used for a blurry preview in the browser
+)
+
+// Image references an image file stored in a source.
+// Sources are supposed to return images that implement this type.
 type Image interface {
-	Hash() string            // Unique hash that stays the same as long as the file doesn't change
-	Load() (*os.File, error) // Returns the original and unaltered image file
+	Hash() string // Unique hash that stays the same as long as the file doesn't change
+	Width() int   // Width of the original image
+	Height() int  // Height of the original image
+
+	FileContent(imageSize) (r io.ReadCloser, mime string, err error) // Returns the compressed image file
 }
 
 // FilterImages takes a list of elements, and returns only the images.
