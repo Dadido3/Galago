@@ -109,6 +109,22 @@ func (t *uiImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	io.Copy(w, imageFile)
 }
 
+type uiCachedImage struct{}
+
+func (t *uiCachedImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	f, mime, err := cache.QueryImage(r.URL.Path)
+	if err != nil {
+		log.Error(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
+	}
+	defer f.Close()
+
+	w.Header().Set("Content-Type", mime)
+
+	io.Copy(w, f)
+}
+
 func serverUIInit() {
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(".", "ui", "static")))))
 
@@ -116,6 +132,7 @@ func serverUIInit() {
 	//router.Handle("/logout", auth.LogoutHandler(storage.StorageSessions))
 
 	router.PathPrefix("/image/").Handler(http.StripPrefix("/image/", &uiImage{}))
+	router.PathPrefix("/cached/").Handler(http.StripPrefix("/cached/", &uiCachedImage{}))
 
 	router.Handle("/", http.StripPrefix("/", newUITemplate("gallery.gohtml")))
 	router.PathPrefix("/gallery/").Handler(http.StripPrefix("/gallery/", newUITemplate("gallery.gohtml")))

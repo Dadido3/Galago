@@ -25,9 +25,10 @@ import (
 	"runtime"
 	"time"
 
-	_ "image/bmp"
 	_ "image/jpeg"
 	_ "image/png"
+
+	_ "golang.org/x/image/bmp"
 
 	"github.com/Dadido3/configdb"
 	"github.com/coreos/go-semver/semver"

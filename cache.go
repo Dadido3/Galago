@@ -77,13 +77,13 @@ func (c *Cache) StoreCacheEntry(hash string, ce *CacheEntry) error {
 }
 
 // QueryImage returns the image file for a given hash, or an error if there is no file.
-func (c *Cache) QueryImage(hash string) (*os.File, error) {
+func (c *Cache) QueryImage(hash string) (*os.File, string, error) {
 	f, err := os.Open(filepath.Join(c.dirPath, fmt.Sprintf("%v.jpg", hash)))
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return f, nil
+	return f, "image/jpeg", nil
 }
 
 // StoreImage saves the given image to disk.

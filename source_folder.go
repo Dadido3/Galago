@@ -236,11 +236,11 @@ func (si SourceFolderImage) FileContent(s imageSize) (io.ReadCloser, string, err
 		return f, ExtToMIME(filepath.Ext(f.Name())), err
 
 	case ImageSizeReduced:
-		f, err := cache.QueryImage(si.Hash())
+		f, mime, err := cache.QueryImage(si.Hash())
 		if err != nil {
 			return nil, "", err
 		}
-		return f, ExtToMIME(filepath.Ext(f.Name())), err
+		return f, mime, err
 
 	case ImageSizeNano:
 		r := ioutil.NopCloser(bytes.NewReader([]byte(si.cacheEntry.NanoBitmap)))
