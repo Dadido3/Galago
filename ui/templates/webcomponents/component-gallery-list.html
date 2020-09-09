@@ -22,9 +22,8 @@
 					let entry = that.appendChild(document.createElement("gallery-image"));
 					let height = 400; // px
 					let width = height / item.height * item.width
-					entry.setAttribute("width", width);
-					entry.setAttribute("height", height);
-					entry.setAttribute("image", item.image);
+					entry.setImage(width, height, item.image, item.nanoImage);
+					entry.url = item.url.replace(/%/g, "%25"); // FIXME: Get templates to output correct URL encoded string
 					entry.name = item.name;
 					entry.description = item.description;
 				});

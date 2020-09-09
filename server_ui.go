@@ -113,7 +113,6 @@ func (t *uiImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type uiCachedImage struct{}
 
 func (t *uiCachedImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
 	f, mime, err := cache.QueryImage(r.URL.Path)
 	if err != nil {
 		log.Error(err)
@@ -124,6 +123,8 @@ func (t *uiCachedImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", mime)
 
 	io.Copy(w, f)
+
+	log.Tracef("Sent cached image %v", f.Name())
 }
 
 func serverUIInit() {
@@ -137,4 +138,5 @@ func serverUIInit() {
 
 	router.Handle("/", http.StripPrefix("/", newUITemplate("gallery.gohtml")))
 	router.PathPrefix("/gallery/").Handler(http.StripPrefix("/gallery/", newUITemplate("gallery.gohtml")))
+	router.PathPrefix("/image-viewer/").Handler(http.StripPrefix("/image-viewer/", newUITemplate("image-viewer.gohtml")))
 }

@@ -2,11 +2,7 @@
 
 {{ define "components" }}
 
-{{ template "component-gallery-image.html" }}
-{{ template "component-gallery-list.html" }}
-{{ template "component-album-preview.html" }}
-{{ template "component-album-list.html" }}
-{{ template "component-album-entry.html" }}
+{{ template "component-image-viewer.html" }}
 
 {{ end }}
 
@@ -17,19 +13,19 @@
 	<a href="#" class="w3-bar-item w3-button"><i class="fa fa-download"></i></a>
 </div>
 
-<album-list id="album-list"></album-list>
+<h1>viewer of {{ .Path }}</h1>
 
-<gallery-list id="gallery-list"></gallery-list>
+<img src="/image{{ (.RootElement.Traverse .Path).Path }}"></img>
 
 <!-- Main handler -->
 <script>
 	class MainLogic {
 		constructor() {
-			let albumList = document.getElementById("album-list");
+			/*let albumList = document.getElementById("album-list");
 			albumList.items = [
 				{{ $element := .RootElement.Traverse .Path }}
 				{{ range $key, $value := (filterContainers $element.Children) }}
-					{name: {{ $value.Name }}, description: "aeaefaefaef", url: "/gallery{{ $value.Path }}", images: [{width: 200, height: 300, image: "/image{{ $value.Path }}"}, {width: 200, height: 400, image: "https://picsum.photos/400/800"}]},
+					{name: {{ $value.Name }}, description: "aeaefaefaef", images: [{width: 200, height: 300, image: "/image{{ $value.Path }}"}, {width: 200, height: 400, image: "https://picsum.photos/400/800"}]},
 				{{ end }}
 			];
 
@@ -37,9 +33,9 @@
 			galleryList.value = [
 				{{ $element := .RootElement.Traverse .Path }}
 				{{ range $key, $value := (filterImages $element.Children) }}
-					{name: {{ $value.Name }}, description: "aeaefaefaef", url: "/image-viewer{{ $value.Path }}", width: {{ $value.Width }}, height: {{ $value.Height }}, image: "/cached/{{ $value.Hash }}", nanoImage: "{{ imageToDataURI $value }}"},
+					{name: {{ $value.Name }}, description: "aeaefaefaef", width: {{ $value.Width }}, height: {{ $value.Height }}, image: "/cached/{{ $value.Hash }}", nanoImage: "{{ imageToDataURI $value }}"},
 				{{ end }}
-			];
+			];*/
 		}
 	}
 

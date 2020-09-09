@@ -20,8 +20,9 @@
 				let that = this;
 				this._items.forEach(function (item, index) {
 					let entry = that.appendChild(document.createElement("album-entry"));
-					entry.setAttribute("name", item.name);
-					entry.setAttribute("description", item.description);
+					entry.url = item.url.replace(/%/g, "%25"); // FIXME: Get templates to output correct URL encoded string
+					entry.name = item.name;
+					entry.description = item.description;
 					entry.images = item.images;
 				});
 				this.appendChild(document.createElement("div"));

@@ -1,21 +1,19 @@
-<template id="gallery-image-template">
-	<a ref="link">
-		<img ref="img" class="gallery-image-blurry">
-		</img>
-		<div ref="overlay">
-			<h1 ref="name">Bla</h1>
-			<span ref="description">This is just a test</span>
-		</div>
-	</a>
+<template id="image-viewer-template">
+	<img ref="img" class="image-viewer-blurry">
+	</img>
+	<div ref="overlay">
+		<h1 ref="name">Bla</h1>
+		<span ref="description">This is just a test</span>
+	</div>
 </template>
 
 <script>
-	customElements.define('gallery-image',
+	customElements.define('image-viewer',
 		class extends HTMLElement {
 			constructor() {
 				super();
 
-				let template = document.getElementById('gallery-image-template');
+				let template = document.getElementById('image-viewer-template');
 				let clone = template.content.cloneNode(true);
 				this.templateClone = clone;
 				// Store references to DOM elements. The constructors of the sub web components will only be called on appendChild,
@@ -26,7 +24,7 @@
 					entries.forEach(function (entry) {
 						if (entry.isIntersecting) {
 							entry.target.src = entry.target.dataset.src;
-							entry.target.classList.remove("gallery-image-blurry");
+							entry.target.classList.remove("image-viewer-blurry");
 						}
 					});
 				},

@@ -1,7 +1,9 @@
 <template id="album-entry-template">
-	<album-preview ref="preview" style="width: 400px; height: 400px; display: block;"></album-preview>
-	<h1 ref="name"></h1>
-	<span ref="description"></span>
+	<a ref="link">
+		<album-preview ref="preview" style="width: 400px; height: 400px; display: block;"></album-preview>
+		<h1 ref="name"></h1>
+		<span ref="description"></span>
+	</a>
 </template>
 <script>
 	customElements.define('album-entry',
@@ -21,6 +23,33 @@
 				this.appendChild(this.templateClone);
 			}
 
+			get name() {
+				return this._name;
+			}
+
+			set name(name) {
+				this._name = name;
+				this.refs["name"].innerText = name;
+			}
+
+			get description() {
+				return this._description;
+			}
+
+			set description(description) {
+				this._description = description;
+				this.refs["description"].innerText = description;
+			}
+
+			get url() {
+				return this._url;
+			}
+
+			set url(url) {
+				this._url = url;
+				this.refs["link"].href = url;
+			}
+
 			get images() {
 				let images = this._images;
 				return images;
@@ -31,14 +60,11 @@
 				this.refs["preview"].value = images;
 			}
 
-			static get observedAttributes() { return ["name", "description"]; }
+			static get observedAttributes() { return []; }
 
 			attributeChangedCallback(name, oldValue, newValue) {
 				switch (name) {
-					case "name": this.refs["name"].innerText = newValue;
-					case "description": this.refs["description"].innerText = newValue;
 				}
-
 			}
 
 		}
