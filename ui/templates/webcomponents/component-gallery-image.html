@@ -66,9 +66,9 @@
 			}
 
 			setImage(width, height, image, nanoImage) {
-				this.refs["img"].style["width"] = width + "px"
-				this.refs["img"].style["height"] = height + "px"
-				this.refs["img"].style.backgroundImage = "url('" + nanoImage + "')"
+				this.refs["img"].width = width;
+				this.refs["img"].height = height;
+				this.refs["img"].style.backgroundImage = "url('" + nanoImage + "')";
 				this.refs["img"].dataset.src = image;
 				this.io.unobserve(this.refs["img"]);
 				this.io.observe(this.refs["img"]);
