@@ -3,9 +3,51 @@
 		class extends HTMLElement {
 			constructor() {
 				super();
+
+				new ResizeObserver(() => {
+					if (this.items) {
+						this.items = this.rearrangeImages(this.items);
+						this._resizeImages();
+					}
+				}).observe(this);
 			}
 
 			connectedCallback() {
+			}
+
+			rearrangeImages(imagesPool) {
+				let containerWidth = this.clientWidth - 2;
+				console.log(containerWidth);
+
+				let result = []; // Resulting images
+
+				// Determine the amount of images that best fit into one row
+				let rowCandidate = [];
+				imagesPool.forEach((image, i) => {
+					rowCandidate.push(image);
+
+					let widthSum = 0; // Sum of widths, but with the height normalized to 1
+					rowCandidate.forEach(function (image) {
+						widthSum += image.width / image.height; // Normalize the height to 1
+					});
+
+					let neededHeight = (containerWidth - 4 * rowCandidate.length) / widthSum;
+
+					if (neededHeight <= 500 || i == imagesPool.length - 1) {
+						if (neededHeight > 500) { neededHeight = 500; }
+						// Scale resulting image candidates
+						rowCandidate.forEach(function (image, i) {
+							rowCandidate[i].displayWidth = image.width * (neededHeight / image.height);
+							rowCandidate[i].displayHeight = neededHeight;
+						});
+
+						// Add candidate images to result images
+						result = result.concat(rowCandidate);
+						rowCandidate = [];
+					}
+				});
+
+				return result;
 			}
 
 			get value() {
@@ -14,20 +56,26 @@
 			}
 
 			set value(items) {
-				this.items = items;
+				this.items = this.rearrangeImages(items);
 
 				this.innerHTML = "";
 				let that = this;
 				this.items.forEach(function (item, index) {
 					let entry = that.appendChild(document.createElement("gallery-image"));
-					let height = 400; // px
-					let width = height / item.height * item.width
-					entry.setImage(width, height, item.image, item.nanoImage);
+					entry.setImage(item.displayWidth, item.displayHeight, item.image, item.nanoImage);
 					entry.url = item.url.replace(/%/g, "%25"); // FIXME: Get templates to output correct URL encoded string
 					entry.name = item.name;
 					entry.description = item.description;
 				});
 				this.appendChild(document.createElement("div"));
+			}
+
+			_resizeImages() {
+				let domElements = this.children;
+
+				this.items.forEach(function (item, index) {
+					domElements[index].setSize(item.displayWidth, item.displayHeight);
+				});
 			}
 		}
 	);
