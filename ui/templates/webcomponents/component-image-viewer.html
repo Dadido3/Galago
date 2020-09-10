@@ -1,6 +1,13 @@
 <template id="image-viewer-template">
-	<img ref="img" class="image-viewer-blurry">
-	</img>
+	<pinch-zoom min-scale="1" ref="zoom">
+		<img ref="img" />
+	</pinch-zoom>
+	<a id="sidebutton-left" class="sidebutton" href="#">
+		<div>A</div>
+	</a>
+	<a id="sidebutton-right" class="sidebutton" href="#">
+		<div>B</div>
+	</a>
 	<div ref="overlay">
 		<h1 ref="name">Bla</h1>
 		<span ref="description">This is just a test</span>
@@ -20,16 +27,16 @@
 				// so it's safe to query elements by the ref attribute, even if some sub components contains the same ref attribute.
 				this.refs = getTemplateRefs(clone);
 
-				this.io = new IntersectionObserver((entries) => {
-					entries.forEach(function (entry) {
-						if (entry.isIntersecting) {
-							entry.target.src = entry.target.dataset.src;
-							entry.target.classList.remove("image-viewer-blurry");
-						}
-					});
-				},
-					{}
-				);
+				// Switch to high res original image when the user zooms in
+				this._switchedToHighRes = false;
+				let that = this;
+				this.refs["zoom"].addEventListener('change', function (e) {
+					if (e.target.scale !== 1 && !this._switchedToHighRes) {
+						this._switchedToHighRes = true;
+						that.refs["img"].style.backgroundImage = "url('" + that._reducedURL + "')";
+						that.refs["img"].src = that._originalURL.replace(/%/g, "%25");
+					}
+				});
 			}
 
 			connectedCallback() {
@@ -54,22 +61,14 @@
 				this.refs["description"].innerText = description;
 			}
 
-			get url() {
-				return this._url;
-			}
-
-			set url(url) {
-				this._url = url;
-				this.refs["link"].href = url;
-			}
-
-			setImage(width, height, image, nanoImage) {
-				this.refs["img"].style["width"] = width + "px"
-				this.refs["img"].style["height"] = height + "px"
-				this.refs["img"].style.backgroundImage = "url('" + nanoImage + "')"
-				this.refs["img"].dataset.src = image;
-				this.io.unobserve(this.refs["img"]);
-				this.io.observe(this.refs["img"]);
+			setImages(width, height, nanoURL, reducedURL, originalURL) {
+				this._nanoURL = nanoURL;
+				this._reducedURL = reducedURL;
+				this._originalURL = originalURL;
+				//this.refs["img"].width = width ; // Setting width and height prevents the element from fitting into the parent
+				//this.refs["img"].height = height ;
+				this.refs["img"].style.backgroundImage = "url('" + this._nanoURL + "')";
+				this.refs["img"].src = this._reducedURL.replace(/%/g, "%25");
 			}
 
 			static get observedAttributes() { return []; }

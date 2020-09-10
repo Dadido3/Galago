@@ -8,34 +8,24 @@
 
 {{ define "content" }}
 
-<div class="w3-bar w3-blue-gray w3-xlarge">
-	<a href="#" class="w3-bar-item w3-button"><i class="fa fa-home"></i></a>
-	<a href="#" class="w3-bar-item w3-button"><i class="fa fa-download"></i></a>
+<div id="viewport-box">
+	<div id="menu-container" class="w3-bar w3-blue-gray w3-xlarge">
+		<a href="#" class="w3-bar-item w3-button"><i class="fa fa-home"></i></a>
+		<a href="#" class="w3-bar-item w3-button"><i class="fa fa-download"></i></a>
+	</div>
+
+	<image-viewer id="image-viewer"></image-viewer>
 </div>
-
-<h1>viewer of {{ .Path }}</h1>
-
-<img src="/image{{ (.RootElement.Traverse .Path).Path }}"></img>
 
 <!-- Main handler -->
 <script>
 	class MainLogic {
 		constructor() {
-			/*let albumList = document.getElementById("album-list");
-			albumList.items = [
-				{{ $element := .RootElement.Traverse .Path }}
-				{{ range $key, $value := (filterContainers $element.Children) }}
-					{name: {{ $value.Name }}, description: "aeaefaefaef", images: [{width: 200, height: 300, image: "/image{{ $value.Path }}"}, {width: 200, height: 400, image: "https://picsum.photos/400/800"}]},
-				{{ end }}
-			];
-
-			let galleryList = document.getElementById("gallery-list");
-			galleryList.value = [
-				{{ $element := .RootElement.Traverse .Path }}
-				{{ range $key, $value := (filterImages $element.Children) }}
-					{name: {{ $value.Name }}, description: "aeaefaefaef", width: {{ $value.Width }}, height: {{ $value.Height }}, image: "/cached/{{ $value.Hash }}", nanoImage: "{{ imageToDataURI $value }}"},
-				{{ end }}
-			];*/
+			{{ $element := .RootElement.Traverse .Path }}
+			let imageViewer = document.getElementById("image-viewer");
+			imageViewer.setImages({{ $element.Width }}, {{ $element.Height }}, "{{ imageToDataURI $element }}", "/cached/{{ $element.Hash }}", "/image{{ $element.Path }}");
+			imageViewer.name = {{ $element.Name }};
+			imageViewer.description = "aeaefaefaef";
 		}
 	}
 

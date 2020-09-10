@@ -1,0 +1,59 @@
+#viewport-box {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+}
+
+#menu-container {
+	flex-shrink: 0;
+}
+
+#image-viewer {
+	flex-grow: 1;
+	position: relative;
+}
+
+.sidebutton {
+	position: absolute;
+	color: white;
+	top: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	min-width: 15vw;
+}
+
+#sidebutton-left {
+	left: 0;
+	justify-content: flex-start;
+}
+
+#sidebutton-right {
+	right: 0;
+	justify-content: flex-end;
+}
+
+image-viewer {
+	display: block;
+	position: absolute;
+	right: 0;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	background-color: black;
+}
+
+image-viewer>pinch-zoom {
+	position: absolute;
+	right: 0;
+	left: 0;
+	top: 0;
+	bottom: 0;
+}
+
+image-viewer>pinch-zoom>img {
+	max-width: 100%;
+	max-height: 100%;
+	background-size: cover;
+	background-position: center center;
+}

@@ -12,7 +12,9 @@
         "gohtml",
         "mattn",
         "nfnt",
-        "semver"
+        "semver",
+        "sidebutton",
+        "trackpad"
     ],
     "licenser.author": "David Vogel",
     "licenser.license": "GPLv2",
