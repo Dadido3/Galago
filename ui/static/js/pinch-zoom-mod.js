@@ -376,18 +376,26 @@ var PinchZoom = (function () {
             bottomRight = bottomRight.matrixTransform(matrix);
             // Ensure _positioningEl can't move beyond out-of-bounds.
             // Correct for x
-            if (topLeft.x > thisBounds.width) {
-                x += thisBounds.width - topLeft.x;
-            }
-            else if (bottomRight.x < 0) {
-                x += -bottomRight.x;
+            if (thisBounds.width >= (bottomRight.x - topLeft.x)) {
+                x = thisBounds.width/2 - (bottomRight.x - topLeft.x)/2;
+            } else {
+                if (bottomRight.x < thisBounds.width) {
+                    x += thisBounds.width - bottomRight.x;
+                }
+                if (topLeft.x > 0) {
+                    x += -topLeft.x;
+                }
             }
             // Correct for y
-            if (topLeft.y > thisBounds.height) {
-                y += thisBounds.height - topLeft.y;
-            }
-            else if (bottomRight.y < 0) {
-                y += -bottomRight.y;
+            if (thisBounds.height >= (bottomRight.y - topLeft.y)) {
+                y = thisBounds.height/2 - (bottomRight.y - topLeft.y)/2;
+            } else {
+                if (bottomRight.y < thisBounds.height) {
+                    y += thisBounds.height - bottomRight.y;
+                }
+                if (topLeft.y > 0) {
+                    y += -topLeft.y;
+                }
             }
             this._updateTransform(scale, x, y, allowChangeEvent);
         }
