@@ -453,7 +453,7 @@ var PinchZoom = (function () {
             }
             // ctrlKey is true when pinch-zooming on a trackpad.
             const zoomSpeedRec = ctrlKey ? 1 : 3;
-            const scaleFactor = Math.pow(1.15, deltaY / zoomSpeedRec);
+            const scaleFactor = Math.pow(0.85, deltaY / zoomSpeedRec);
             this._applyChange({
                 scaleDiff: scaleFactor,
                 originX: event.clientX - currentRect.left,
