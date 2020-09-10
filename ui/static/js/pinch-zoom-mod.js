@@ -260,6 +260,8 @@ var PinchZoom = (function () {
             // so _stageElChange is also called in connectedCallback.
             new MutationObserver(() => this._stageElChange())
                 .observe(this, { childList: true });
+            // Handler for resize events
+            this._resizeObserver = new ResizeObserver(() => this.setTransform({ allowChangeEvent: true }))
             // Watch for pointers
             const pointerTracker = new PointerTracker(this, {
                 start: (pointer, event) => {
@@ -430,6 +432,9 @@ var PinchZoom = (function () {
          * that's the element we pan/scale.
          */
         _stageElChange() {
+            if (this._positioningEl) {
+                this._resizeObserver.unobserve(this._positioningEl);
+            }
             this._positioningEl = undefined;
             if (this.children.length === 0)
                 return;
@@ -437,6 +442,8 @@ var PinchZoom = (function () {
             if (this.children.length > 1) {
                 console.warn('<pinch-zoom> must not have more than one child.');
             }
+            // Listen for resize events
+            this._resizeObserver.observe(this._positioningEl);
             // Do a bounds check
             this.setTransform({ allowChangeEvent: true });
         }
