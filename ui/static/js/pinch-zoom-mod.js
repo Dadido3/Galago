@@ -342,8 +342,12 @@ var PinchZoom = (function () {
          * Update the stage with a given scale/x/y.
          */
         setTransform(opts = {}) {
-            const { scale = this.scale, allowChangeEvent = false, } = opts;
+            let { scale = this.scale, allowChangeEvent = false, } = opts;
             let { x = this.x, y = this.y, } = opts;
+            // Avoid scaling below minScale
+            if (scale < this.minScale) {
+                scale = this.minScale;
+            }
             // If we don't have an element to position, just set the value as given.
             // We'll check bounds later.
             if (!this._positioningEl) {
@@ -377,7 +381,7 @@ var PinchZoom = (function () {
             // Ensure _positioningEl can't move beyond out-of-bounds.
             // Correct for x
             if (thisBounds.width >= (bottomRight.x - topLeft.x)) {
-                x = thisBounds.width/2 - (bottomRight.x - topLeft.x)/2;
+                x = thisBounds.width / 2 - (bottomRight.x - topLeft.x) / 2;
             } else {
                 if (bottomRight.x < thisBounds.width) {
                     x += thisBounds.width - bottomRight.x;
@@ -388,7 +392,7 @@ var PinchZoom = (function () {
             }
             // Correct for y
             if (thisBounds.height >= (bottomRight.y - topLeft.y)) {
-                y = thisBounds.height/2 - (bottomRight.y - topLeft.y)/2;
+                y = thisBounds.height / 2 - (bottomRight.y - topLeft.y) / 2;
             } else {
                 if (bottomRight.y < thisBounds.height) {
                     y += thisBounds.height - bottomRight.y;
@@ -403,9 +407,6 @@ var PinchZoom = (function () {
          * Update transform values without checking bounds. This is only called in setTransform.
          */
         _updateTransform(scale, x, y, allowChangeEvent) {
-            // Avoid scaling to zero
-            if (scale < this.minScale)
-                return;
             // Return if there's no change
             if (scale === this.scale &&
                 x === this.x &&
@@ -446,15 +447,15 @@ var PinchZoom = (function () {
             const currentRect = this._positioningEl.getBoundingClientRect();
             let { deltaY } = event;
             const { ctrlKey, deltaMode } = event;
-            if (deltaMode === 1) { // 1 is "lines", 0 is "pixels"
+            if (deltaMode === 0) { // 1 is "lines", 0 is "pixels"
                 // Firefox uses "lines" for some types of mouse
-                deltaY *= 15;
+                deltaY /= 15;
             }
             // ctrlKey is true when pinch-zooming on a trackpad.
-            const divisor = ctrlKey ? 100 : 300;
-            const scaleDiff = 1 - deltaY / divisor;
+            const zoomSpeedRec = ctrlKey ? 1 : 3;
+            const scaleFactor = Math.pow(1.15, deltaY / zoomSpeedRec);
             this._applyChange({
-                scaleDiff,
+                scaleDiff: scaleFactor,
                 originX: event.clientX - currentRect.left,
                 originY: event.clientY - currentRect.top,
                 allowChangeEvent: true,
