@@ -261,7 +261,7 @@ var PinchZoom = (function () {
             new MutationObserver(() => this._stageElChange())
                 .observe(this, { childList: true });
             // Handler for resize events
-            this._resizeObserver = new ResizeObserver(() => this.setTransform({ allowChangeEvent: true }))
+            this._resizeObserver = new ResizeObserver(() => this.setTransform({ allowChangeEvent: true }));
             // Watch for pointers
             const pointerTracker = new PointerTracker(this, {
                 start: (pointer, event) => {
