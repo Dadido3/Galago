@@ -212,7 +212,7 @@ var PinchZoom = (function () {
         }
     }
 
-    var css = "pinch-zoom {\n  display: block;\n  overflow: hidden;\n  touch-action: none;\n  --scale: 1;\n  --x: 0;\n  --y: 0;\n}\n\npinch-zoom > * {\n  transform: translate(var(--x), var(--y)) scale(var(--scale));\n  transform-origin: 0 0;\n  will-change: transform;\n}\n";
+    var css = "pinch-zoom {\n  display: block;\n  overflow: hidden;\n  touch-action: none;\n  --scale: 1;\n  --x: 0;\n  --y: 0;\n}\n\npinch-zoom > * {\n  transform: translate(var(--x), var(--y)) scale(var(--scale));\n  transform-origin: 0 0;\n}\n";
     styleInject(css);
 
     const minScaleAttr = 'min-scale';
