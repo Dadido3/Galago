@@ -25,7 +25,7 @@ type imageSize int
 
 // Image size enumeration.
 const (
-	ImageSizeOriginal imageSize = iota // Image in its original size
+	ImageSizeOriginal imageSize = iota // Image in its original size and format
 	ImageSizeReduced                   // Image in its reduced size (Cached version)
 	ImageSizeNano                      // Really small version of the image that can be embedded into HTML. Can be used for a blurry preview in the browser
 )

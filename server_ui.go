@@ -110,8 +110,11 @@ func (t *uiImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer imageFile.Close()
 
 	w.Header().Set("Content-Type", mime)
+	w.Header().Set("Cache-Control", "public, max-age=86400") // 1 Day
 
 	io.Copy(w, imageFile)
+
+	log.Tracef("Sent original image %v", element.Name())
 }
 
 type uiCachedImage struct{}
@@ -125,6 +128,7 @@ func (t *uiCachedImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer f.Close()
 
 	w.Header().Set("Content-Type", mime)
+	w.Header().Set("Cache-Control", "public, max-age=2419200") // 4 weeks
 
 	io.Copy(w, f)
 
