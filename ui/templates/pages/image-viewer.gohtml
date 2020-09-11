@@ -1,4 +1,4 @@
-{{ define "title"}}Test{{ end }}
+{{ define "title"}}{{ (.RootElement.Traverse .Path).Name }}{{ end }}
 
 {{ define "components" }}
 
@@ -8,9 +8,13 @@
 
 {{ define "content" }}
 
+{{ $element := .RootElement.Traverse .Path }}
+{{ $parent := $element.Parent }}
+
 <div id="viewport-box">
 	<div id="menu-container" class="w3-bar w3-blue-gray w3-xlarge">
-		<a href="#" class="w3-bar-item w3-button"><i class="fa fa-home"></i></a>
+		<a href="/gallery{{ $parent.Path }}" class="w3-bar-item w3-button"><i class="far fa-arrow-alt-circle-left"></i></a>
+		<a href="/" class="w3-bar-item w3-button"><i class="fa fa-home"></i></a>
 		<a href="#" class="w3-bar-item w3-button"><i class="fa fa-download"></i></a>
 	</div>
 
@@ -21,11 +25,22 @@
 <script>
 	class MainLogic {
 		constructor() {
-			{{ $element := .RootElement.Traverse .Path }}
+			
 			let imageViewer = document.getElementById("image-viewer");
-			imageViewer.setImages({{ $element.Width }}, {{ $element.Height }}, "{{ imageToDataURI $element }}", "/cached/{{ $element.Hash }}", "/image{{ $element.Path }}");
+			imageViewer.setImages({{ $element.Width }}, {{ $element.Height }}, "{{ imageToDataURI $element }}", "/cached/"+{{ $element.Hash }}, "/image"+{{ $element.Path }});
 			imageViewer.name = {{ $element.Name }};
 			imageViewer.description = "aeaefaefaef";
+
+			{{ $previous := previousElement $element }}
+			{{ if $previous }}
+				imageViewer.previousURL = {{ $previous.URLName }};
+			{{ end }}
+
+			{{ $next := nextElement $element }}
+			{{ if $next }}
+				imageViewer.nextURL = {{ $next.URLName }};
+			{{ end }}
+
 		}
 	}
 

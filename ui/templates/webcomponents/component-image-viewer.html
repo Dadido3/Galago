@@ -2,16 +2,20 @@
 	<pinch-zoom min-scale="1" ref="zoom">
 		<img ref="img" />
 	</pinch-zoom>
-	<a id="sidebutton-left" class="sidebutton" href="#">
-		<div>A</div>
-	</a>
-	<a id="sidebutton-right" class="sidebutton" href="#">
-		<div>B</div>
-	</a>
-	<div ref="overlay">
+	<div ref="sidebutton-left" id="sidebutton-left" class="sidebutton hidden">
+		<a ref="sidebutton-left-link">
+			<i class="fas fa-chevron-left"></i>
+		</a>
+	</div>
+	<div ref="sidebutton-right" id="sidebutton-right" class="sidebutton hidden">
+		<a ref="sidebutton-right-link">
+			<i class="fas fa-chevron-right"></i>
+		</a>
+	</div>
+	<!--<div ref="overlay">
 		<h1 ref="name">Bla</h1>
 		<span ref="description">This is just a test</span>
-	</div>
+	</div>-->
 </template>
 
 <script>
@@ -34,7 +38,7 @@
 					if (e.target.scale !== 1 && !this._switchedToHighRes) {
 						this._switchedToHighRes = true;
 						that.refs["img"].style.backgroundImage = "url('" + that._reducedURL + "')";
-						that.refs["img"].src = that._originalURL.replace(/%/g, "%25");
+						that.refs["img"].src = encodeURI(that._originalURL);
 					}
 				});
 			}
@@ -49,7 +53,7 @@
 
 			set name(name) {
 				this._name = name;
-				this.refs["name"].innerText = name;
+				//this.refs["name"].innerText = name;
 			}
 
 			get description() {
@@ -58,17 +62,43 @@
 
 			set description(description) {
 				this._description = description;
-				this.refs["description"].innerText = description;
+				//this.refs["description"].innerText = description;
+			}
+
+			get previousURL() {
+				return this._previousURL;
+			}
+
+			set previousURL(url) {
+				this._previousURL = url;
+				if (url === "") {
+					this.refs["sidebutton-left"].classList.add("hidden");
+				} else {
+					this.refs["sidebutton-left"].classList.remove("hidden");
+				}
+				this.refs["sidebutton-left-link"].href = encodeURI(url);
+			}
+
+			get nextURL() {
+				return this._nextURL;
+			}
+
+			set nextURL(url) {
+				this._nextURL = url;
+				if (url === "") {
+					this.refs["sidebutton-right"].classList.add("hidden");
+				} else {
+					this.refs["sidebutton-right"].classList.remove("hidden");
+				}
+				this.refs["sidebutton-right-link"].href = encodeURI(url);
 			}
 
 			setImages(width, height, nanoURL, reducedURL, originalURL) {
 				this._nanoURL = nanoURL;
 				this._reducedURL = reducedURL;
 				this._originalURL = originalURL;
-				//this.refs["img"].width = width ; // Setting width and height prevents the element from fitting into the parent
-				//this.refs["img"].height = height ;
 				this.refs["img"].style.backgroundImage = "url('" + this._nanoURL + "')";
-				this.refs["img"].src = this._reducedURL.replace(/%/g, "%25");
+				this.refs["img"].src = encodeURI(this._reducedURL);
 			}
 
 			static get observedAttributes() { return []; }

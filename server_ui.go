@@ -34,6 +34,8 @@ func init() {
 		"filterNonEmpty":   FilterNonEmpty,
 		"filterContainers": FilterContainers,
 		"imageToDataURI":   ImageToDataURI,
+		"previousElement":  PreviousElement,
+		"nextElement":      NextElement,
 	})
 
 	uiTemplates = template.Must(uiTemplates.ParseGlob(filepath.Join(".", "ui", "templates", "*.*html")))
@@ -60,6 +62,8 @@ func (t *uiTemplate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	//path := mux.Vars(r)["path"]
 
+	log.Trace(r.URL.Path)
+
 	d := struct {
 		RootElement Album
 		Path        string
@@ -80,7 +84,7 @@ type uiImage struct{}
 
 func (t *uiImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	log.Debug(r.URL.Path)
+	log.Trace(r.URL.Path)
 
 	element, err := RootElement.Traverse(r.URL.Path)
 	if err != nil {

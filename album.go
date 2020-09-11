@@ -23,12 +23,18 @@ import "fmt"
 type Album struct {
 	name, urlName string
 	parent        Element
+	index         int
 	children      []Element
 }
 
 // Parent returns the parent element, duh.
 func (a Album) Parent() Element {
 	return a.parent
+}
+
+// Index returns the index of the element in its parent children list.
+func (a Album) Index() int {
+	return a.index
 }
 
 // Children returns the content of the album.

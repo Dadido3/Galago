@@ -20,7 +20,14 @@
 	bottom: 0;
 	display: flex;
 	align-items: center;
-	min-width: 15vw;
+	font-size: xx-large;
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.sidebutton > a {
+	pointer-events: all;
+	padding: 20px;
 }
 
 #sidebutton-left {

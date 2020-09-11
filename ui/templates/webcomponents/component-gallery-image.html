@@ -4,7 +4,7 @@
 		</img>
 		<div ref="overlay">
 			<h1 ref="name">Bla</h1>
-			<span ref="description">This is just a test</span>
+			<!--<span ref="description">This is just a test</span>-->
 		</div>
 	</a>
 </template>
@@ -53,7 +53,7 @@
 
 			set description(description) {
 				this._description = description;
-				this.refs["description"].innerText = description;
+				//this.refs["description"].innerText = description;
 			}
 
 			get url() {
@@ -62,7 +62,7 @@
 
 			set url(url) {
 				this._url = url;
-				this.refs["link"].href = url;
+				this.refs["link"].href = encodeURI(url);
 			}
 
 			setImage(width, height, image, nanoImage) {

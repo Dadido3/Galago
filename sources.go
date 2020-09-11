@@ -55,7 +55,8 @@ func init() {
 			}
 
 			// Create new source of the given type and forward its configuration
-			if sourceInstance, err := sourceType.create(RootElement, urlName, sourceConf); err == nil {
+			index := len(RootElement.children)
+			if sourceInstance, err := sourceType.create(RootElement, index, urlName, sourceConf); err == nil {
 				RootElement.children = append(RootElement.children, sourceInstance)
 				log.Debugf("Created new instance %q of source %q", urlName, source)
 			} else {

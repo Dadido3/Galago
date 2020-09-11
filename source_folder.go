@@ -35,12 +35,13 @@ func init() {
 // SourceFolder represents a source that can return the content of an local available folder.
 type SourceFolder struct {
 	parent        Element
+	index         int
 	name, urlName string
 	filePath      string
 }
 
 // CreateSourceFolder returns a new instance of a folder source.
-func CreateSourceFolder(parent Element, urlName string, c map[string]interface{}) (Element, error) {
+func CreateSourceFolder(parent Element, index int, urlName string, c map[string]interface{}) (Element, error) {
 	var ok bool
 	var pathInt interface{}
 	if pathInt, ok = c["Path"]; !ok {
@@ -62,6 +63,7 @@ func CreateSourceFolder(parent Element, urlName string, c map[string]interface{}
 
 	return SourceFolder{
 		parent:   parent,
+		index:    index,
 		name:     name,
 		urlName:  urlName,
 		filePath: path,
@@ -71,6 +73,11 @@ func CreateSourceFolder(parent Element, urlName string, c map[string]interface{}
 // Parent returns the parent element, duh.
 func (s SourceFolder) Parent() Element {
 	return s.parent
+}
+
+// Index returns the index of the element in its parent children list.
+func (s SourceFolder) Index() int {
+	return s.index
 }
 
 // Children returns the folders and images of a source.
@@ -91,6 +98,7 @@ func (s SourceFolder) childrenRecursive(parent Element, path string) ([]Element,
 			// Is directory
 			album := &Album{
 				parent:  parent,
+				index:   len(elements),
 				name:    file.Name(),
 				urlName: strings.ToLower(file.Name()),
 			}
@@ -107,6 +115,7 @@ func (s SourceFolder) childrenRecursive(parent Element, path string) ([]Element,
 			if validExtensions[ext] {
 				img := &SourceFolderImage{
 					parent:   parent,
+					index:    len(elements),
 					name:     file.Name(),
 					urlName:  strings.ToLower(file.Name()),
 					s:        s,
@@ -164,6 +173,7 @@ func (s SourceFolder) String() string {
 // SourceFolderImage represents an image that is contained in a locally accessible folder.
 type SourceFolderImage struct {
 	parent        Element
+	index         int
 	name, urlName string
 	s             SourceFolder
 	filePath      string // The path to the file in the filesystem
@@ -174,6 +184,11 @@ type SourceFolderImage struct {
 // Parent returns the parent element, duh.
 func (si SourceFolderImage) Parent() Element {
 	return si.parent
+}
+
+// Index returns the index of the element in its parent children list.
+func (si SourceFolderImage) Index() int {
+	return si.index
 }
 
 // Children returns nothing, as images don't contain other elements.

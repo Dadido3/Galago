@@ -63,7 +63,7 @@
 				this.items.forEach(function (item, index) {
 					let entry = that.appendChild(document.createElement("gallery-image"));
 					entry.setImage(item.displayWidth, item.displayHeight, item.image, item.nanoImage);
-					entry.url = item.url.replace(/%/g, "%25"); // FIXME: Get templates to output correct URL encoded string
+					entry.url = item.url;
 					entry.name = item.name;
 					entry.description = item.description;
 				});

@@ -25,6 +25,7 @@ import (
 // Element represents either a source, an album or an image.
 type Element interface {
 	Parent() Element                       // Returns the parent element
+	Index() int                            // Returns the index of the element in its parent children list
 	Children() ([]Element, error)          // Elements can contain more elements (Like sources or albums)
 	Path() string                          // Returns the absolute path of the element, but not the filesystem path
 	Container() bool                       // Returns whether an element can contain other elements or not
@@ -105,6 +106,40 @@ func TraverseElements(origin Element, path string) (Element, error) {
 	}
 
 	return nil, &ErrorNotFound{pathElements[0]}
+}
+
+// PreviousElement returns the previous neighbor element if possible, or an error otherwise.
+// Having no parent or no neighbor doesn't count as error.
+func PreviousElement(e Element) (Element, error) {
+	if parent, index := e.Parent(), e.Index(); parent != nil {
+		children, err := parent.Children()
+		if err != nil {
+			return nil, err
+		}
+
+		if index > 0 && len(children) > 0 {
+			return children[index-1], nil
+		}
+	}
+
+	return nil, nil
+}
+
+// NextElement returns the next neighbor element if possible, or an error otherwise.
+// Having no parent or no neighbor doesn't count as error.
+func NextElement(e Element) (Element, error) {
+	if parent, index := e.Parent(), e.Index(); parent != nil {
+		children, err := parent.Children()
+		if err != nil {
+			return nil, err
+		}
+
+		if index >= 0 && len(children) > index+1 {
+			return children[index+1], nil
+		}
+	}
+
+	return nil, nil
 }
 
 // ElementPath returns the absolute path of the element.
