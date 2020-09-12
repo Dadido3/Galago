@@ -36,6 +36,7 @@ func init() {
 		"imageToDataURI":   ImageToDataURI,
 		"previousElement":  PreviousElement,
 		"nextElement":      NextElement,
+		"getPreviewImages": GetPreviewImages,
 	})
 
 	uiTemplates = template.Must(uiTemplates.ParseGlob(filepath.Join(".", "ui", "templates", "*.*html")))

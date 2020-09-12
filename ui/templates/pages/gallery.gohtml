@@ -18,7 +18,7 @@
 	<div id="menu-container" class="w3-bar w3-blue-gray w3-xlarge">
 		{{ $parent := $element.Parent }}
 		{{ if $parent }}
-			<a href="/gallery{{ $parent.Path }}" class="w3-bar-item w3-button"><i class="far fa-arrow-alt-circle-left"></i></a>
+			<a href="/gallery{{ $parent.Path }}/" class="w3-bar-item w3-button"><i class="far fa-arrow-alt-circle-left"></i></a>
 		{{ end }}
 		<a href="/" class="w3-bar-item w3-button"><i class="fa fa-home"></i></a>
 		<a href="#" class="w3-bar-item w3-button"><i class="fa fa-download"></i></a>
@@ -37,7 +37,11 @@
 			albumList.items = [
 				{{ $element := .RootElement.Traverse .Path }}
 				{{ range $key, $value := (filterContainers $element.Children) }}
-					{name: {{ $value.Name }}, description: "aeaefaefaef", url: "/gallery"+{{ $value.Path }}, images: [{width: 200, height: 300, image: "/image"+{{ $value.Path }} }, {width: 200, height: 400, image: "https://picsum.photos/400/800"}]},
+					{name: {{ $value.Name }}, description: "aeaefaefaef", url: "/gallery"+{{ $value.Path }}+"/", images: [
+						{{ range $key, $image := (getPreviewImages $value 5) }}
+							{width: {{ $image.Width }}, height: {{ $image.Height }}, image: "/cached/"+{{ $image.Hash }} },
+						{{ end }}
+					]},
 				{{ end }}
 			];
 

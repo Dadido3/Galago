@@ -37,7 +37,7 @@
 				this.refs["zoom"].addEventListener('change', function (e) {
 					if (e.target.scale !== 1 && !this._switchedToHighRes) {
 						this._switchedToHighRes = true;
-						that.refs["img"].style.backgroundImage = "url('" + that._reducedURL + "')";
+						that.refs["img"].style.backgroundImage = "url('" + encodeURI(that._reducedURL) + "')";
 						that.refs["img"].src = encodeURI(that._originalURL);
 					}
 				});

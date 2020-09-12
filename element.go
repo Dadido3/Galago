@@ -142,6 +142,40 @@ func NextElement(e Element) (Element, error) {
 	return nil, nil
 }
 
+// GetPreviewImages tries to return up to n images that are contained inside the given element e.
+// This will iterate over all children until the needed amount of images is found.
+func GetPreviewImages(e Element, n int) ([]Image, error) {
+	result := []Image{}
+
+	// Fill result with direct children image elements
+	children, err := e.Children()
+	if err != nil {
+		return nil, err
+	}
+	images := FilterImages(children)
+	for _, image := range images {
+		if len(result) >= n {
+			return result, nil
+		}
+		result = append(result, image)
+	}
+
+	for _, child := range children {
+		if len(result) >= n {
+			return result, nil
+		}
+
+		images, err := GetPreviewImages(child, n-len(result))
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, images...)
+	}
+
+	return result, nil
+}
+
 // ElementPath returns the absolute path of the element.
 // This will not return the file system path, but the path that an object can be addressed inside of galago.
 // This will include the root element, that has an empty name.
