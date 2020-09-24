@@ -14,7 +14,8 @@
         "nfnt",
         "semver",
         "sidebutton",
-        "trackpad"
+        "trackpad",
+        "xlarge"
     ],
     "licenser.author": "David Vogel",
     "licenser.license": "GPLv2",

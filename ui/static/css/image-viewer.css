@@ -4,40 +4,9 @@
 	height: 100vh;
 }
 
-#menu-container {
-	flex-shrink: 0;
-}
-
 #image-viewer {
 	flex-grow: 1;
 	position: relative;
-}
-
-.sidebutton {
-	position: absolute;
-	color: white;
-	top: 0;
-	bottom: 0;
-	display: flex;
-	align-items: center;
-	font-size: xx-large;
-	opacity: 0.5;
-	pointer-events: none;
-}
-
-.sidebutton > a {
-	pointer-events: all;
-	padding: 20px;
-}
-
-#sidebutton-left {
-	left: 0;
-	justify-content: flex-start;
-}
-
-#sidebutton-right {
-	right: 0;
-	justify-content: flex-end;
 }
 
 image-viewer {
@@ -63,4 +32,14 @@ image-viewer>pinch-zoom>img {
 	max-height: 100%;
 	background-size: cover;
 	background-position: center center;
+}
+
+image-viewer>div {
+	position: absolute;
+	overflow: hidden;
+	top: 0;
+	left: 50%;
+	transform: translate(-50%, 0);
+	background-color: gray;
+	opacity: 0.8;
 }

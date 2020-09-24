@@ -12,12 +12,6 @@
 {{ $parent := $element.Parent }}
 
 <div id="viewport-box">
-	<div id="menu-container" class="w3-bar w3-blue-gray w3-xlarge">
-		<a href="/gallery{{ $parent.Path }}/" class="w3-bar-item w3-button"><i class="far fa-arrow-alt-circle-left"></i></a>
-		<a href="/" class="w3-bar-item w3-button"><i class="fa fa-home"></i></a>
-		<a href="#" class="w3-bar-item w3-button"><i class="fa fa-download"></i></a>
-	</div>
-
 	<image-viewer id="image-viewer"></image-viewer>
 </div>
 
@@ -39,6 +33,11 @@
 			{{ $next := nextElement $element }}
 			{{ if $next }}
 				imageViewer.nextURL = {{ $next.URLName }};
+			{{ end }}
+
+			{{ $parent := $element.Parent }}
+			{{ if $parent }}
+				imageViewer.upURL = "/gallery"+{{ $parent.Path }}+"/";
 			{{ end }}
 
 		}

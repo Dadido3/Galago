@@ -2,15 +2,12 @@
 	<pinch-zoom min-scale="1" ref="zoom">
 		<img ref="img" />
 	</pinch-zoom>
-	<div ref="sidebutton-left" id="sidebutton-left" class="sidebutton hidden">
-		<a ref="sidebutton-left-link">
-			<i class="fas fa-chevron-left"></i>
-		</a>
-	</div>
-	<div ref="sidebutton-right" id="sidebutton-right" class="sidebutton hidden">
-		<a ref="sidebutton-right-link">
-			<i class="fas fa-chevron-right"></i>
-		</a>
+	<div ref="menu" class="w3-xlarge">
+		<a ref="button-left" id="button-left" class="w3-bar-item w3-button w3-disabled"><i class="fas fa-chevron-left"></i></a>
+		<!--<a ref="button-home" class="w3-bar-item w3-button w3-disabled"><i class="fa fa-home"></i></a>-->
+		<a ref="button-level-up" class="w3-bar-item w3-button w3-disabled"><i class="fas fa-level-up-alt"></i></a>
+		<a ref="button-download" class="w3-bar-item w3-button w3-disabled"><i class="fa fa-download"></i></a>	
+		<a ref="button-right" id="button-right" class="w3-bar-item w3-button w3-disabled"><i class="fas fa-chevron-right"></i></a>
 	</div>
 	<!--<div ref="overlay">
 		<h1 ref="name">Bla</h1>
@@ -72,11 +69,11 @@
 			set previousURL(url) {
 				this._previousURL = url;
 				if (url === "") {
-					this.refs["sidebutton-left"].classList.add("hidden");
+					this.refs["button-left"].classList.add("w3-disabled");
 				} else {
-					this.refs["sidebutton-left"].classList.remove("hidden");
+					this.refs["button-left"].classList.remove("w3-disabled");
 				}
-				this.refs["sidebutton-left-link"].href = encodeURI(url);
+				this.refs["button-left"].href = encodeURI(url);
 			}
 
 			get nextURL() {
@@ -86,11 +83,53 @@
 			set nextURL(url) {
 				this._nextURL = url;
 				if (url === "") {
-					this.refs["sidebutton-right"].classList.add("hidden");
+					this.refs["button-right"].classList.add("w3-disabled");
 				} else {
-					this.refs["sidebutton-right"].classList.remove("hidden");
+					this.refs["button-right"].classList.remove("w3-disabled");
 				}
-				this.refs["sidebutton-right-link"].href = encodeURI(url);
+				this.refs["button-right"].href = encodeURI(url);
+			}
+
+			/*get homeURL() {
+				return this._homeURL;
+			}
+
+			set homeURL(url) {
+				this._homeURL = url;
+				if (url === "") {
+					this.refs["button-home"].classList.add("w3-disabled");
+				} else {
+					this.refs["button-home"].classList.remove("w3-disabled");
+				}
+				this.refs["button-home"].href = encodeURI(url);
+			}*/
+
+			get upURL() {
+				return this._upURL;
+			}
+
+			set upURL(url) {
+				this._upURL = url;
+				if (url === "") {
+					this.refs["button-level-up"].classList.add("w3-disabled");
+				} else {
+					this.refs["button-level-up"].classList.remove("w3-disabled");
+				}
+				this.refs["button-level-up"].href = encodeURI(url);
+			}
+
+			get downloadURL() {
+				return this._downloadURL;
+			}
+
+			set downloadURL(url) {
+				this._downloadURL = url;
+				if (url === "") {
+					this.refs["button-download"].classList.add("w3-disabled");
+				} else {
+					this.refs["button-download"].classList.remove("w3-disabled");
+				}
+				this.refs["button-download"].href = encodeURI(url);
 			}
 
 			setImages(width, height, nanoURL, reducedURL, originalURL) {

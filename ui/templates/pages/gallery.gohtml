@@ -17,10 +17,10 @@
 <div class="w3-bar w3-blue-gray w3-xlarge">
 	<div id="menu-container" class="w3-bar w3-blue-gray w3-xlarge">
 		{{ $parent := $element.Parent }}
-		{{ if $parent }}
-			<a href="/gallery{{ $parent.Path }}/" class="w3-bar-item w3-button"><i class="far fa-arrow-alt-circle-left"></i></a>
-		{{ end }}
 		<a href="/" class="w3-bar-item w3-button"><i class="fa fa-home"></i></a>
+		{{ if $parent }}
+			<a href="/gallery{{ $parent.Path }}/" class="w3-bar-item w3-button"><i class="fas fa-level-up-alt"></i></a>
+		{{ end }}
 		<a href="#" class="w3-bar-item w3-button"><i class="fa fa-download"></i></a>
 	</div>
 </div>

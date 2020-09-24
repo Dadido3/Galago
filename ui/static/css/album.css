@@ -1,5 +1,6 @@
 album-preview {
 	position: relative;
+	background-size: cover;
 }
 
 album-preview>div {
