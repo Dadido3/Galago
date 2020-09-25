@@ -14,14 +14,17 @@
 
 {{ $element := .RootElement.Traverse .Path }}
 
-<div class="w3-bar w3-blue-gray w3-xlarge">
-	<div id="menu-container" class="w3-bar w3-blue-gray w3-xlarge">
+<div id="hero" class="w3-xlarge">
+	<div id="menu-container" class="overlay-container">
 		{{ $parent := $element.Parent }}
 		<a href="/" class="w3-bar-item w3-button"><i class="fa fa-home"></i></a>
 		{{ if $parent }}
 			<a href="/gallery{{ $parent.Path }}/" class="w3-bar-item w3-button"><i class="fas fa-level-up-alt"></i></a>
 		{{ end }}
 		<a href="#" class="w3-bar-item w3-button"><i class="fa fa-download"></i></a>
+	</div>
+	<div class="overlay-container hero-album-title">
+		Name of the shitty thing
 	</div>
 </div>
 
@@ -33,10 +36,12 @@
 <script>
 	class MainLogic {
 		constructor() {
+			{{ $element := .RootElement.Traverse .Path }}
+
 			let albumList = document.getElementById("album-list");
 			albumList.items = [
-				{{ $element := .RootElement.Traverse .Path }}
-				{{ range $key, $value := (filterContainers $element.Children) }}
+				{{ $children := filterContainers $element.Children }}
+				{{ range $key, $value := $children }}
 					{name: {{ $value.Name }}, description: "aeaefaefaef", url: "/gallery"+{{ $value.Path }}+"/", images: [
 						{{ range $key, $image := (getPreviewImages $value 5) }}
 							{width: {{ $image.Width }}, height: {{ $image.Height }}, image: "/cached/"+{{ $image.Hash }} },
@@ -45,9 +50,15 @@
 				{{ end }}
 			];
 
+			let hero = document.getElementById("hero");
+			{{ $images := (getPreviewImages $element 1) }}
+			{{ if gt (len $images) 0 }}
+				{{ $image := index $images 0 }}
+				hero.style.backgroundImage = "url(\"/cached/"+{{ $image.Hash }}+"\")";
+			{{ end }}
+
 			let galleryList = document.getElementById("gallery-list");
 			galleryList.value = [
-				{{ $element := .RootElement.Traverse .Path }}
 				{{ range $key, $value := (filterImages $element.Children) }}
 					{name: {{ $value.Name }}, description: "aeaefaefaef", url: "/image-viewer"+{{ $value.Path }}, width: {{ $value.Width }}, height: {{ $value.Height }}, image: "/cached/"+{{ $value.Hash }}, nanoImage: "{{ imageToDataURI $value }}"},
 				{{ end }}

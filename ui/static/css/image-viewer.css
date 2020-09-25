@@ -33,13 +33,3 @@ image-viewer>pinch-zoom>img {
 	background-size: cover;
 	background-position: center center;
 }
-
-image-viewer>div {
-	position: absolute;
-	overflow: hidden;
-	top: 0;
-	left: 50%;
-	transform: translate(-50%, 0);
-	background-color: gray;
-	opacity: 0.8;
-}

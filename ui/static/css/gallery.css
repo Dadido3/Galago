@@ -1,3 +1,16 @@
+#hero {
+	background-size: cover;
+	background-position: center center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.hero-album-title {
+	margin-top: 100px;
+	padding: 20px;
+}
+
 gallery-list {
 	display: flex;
 	flex-wrap: wrap;
