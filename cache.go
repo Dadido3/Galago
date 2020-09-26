@@ -107,7 +107,7 @@ func (c Cache) PrepareAndStoreImage(imgElement Image) (*CacheEntry, error) {
 	hash := imgElement.Hash()
 
 	// Rely on the fact that ImageSizeOriginal should not be cached.
-	file, _, err := imgElement.FileContent(ImageSizeOriginal)
+	file, _, _, err := imgElement.FileContent(ImageSizeOriginal)
 	if err != nil {
 		return nil, fmt.Errorf("Couldn't get original image from %v: %w", imgElement, err)
 	}

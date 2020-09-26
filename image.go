@@ -37,7 +37,7 @@ type Image interface {
 	Width() int   // Width of the original image
 	Height() int  // Height of the original image
 
-	FileContent(imageSize) (r io.ReadCloser, mime string, err error) // Returns the compressed image file
+	FileContent(imageSize) (r io.ReadCloser, size int64, mime string, err error) // Returns the compressed image file
 }
 
 // FilterImages takes a list of elements, and returns only the images.

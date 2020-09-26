@@ -241,28 +241,36 @@ func (si SourceFolderImage) Height() int {
 }
 
 // FileContent returns the compressed image file.
-func (si SourceFolderImage) FileContent(s imageSize) (io.ReadCloser, string, error) {
+func (si SourceFolderImage) FileContent(s imageSize) (io.ReadCloser, int64, string, error) {
 	switch s {
 	case ImageSizeOriginal:
 		f, err := os.Open(si.filePath)
 		if err != nil {
-			return nil, "", err
+			return nil, 0, "", err
 		}
-		return f, ExtToMIME(filepath.Ext(f.Name())), err
+		stat, err := f.Stat()
+		if err != nil {
+			return nil, 0, "", err
+		}
+		return f, stat.Size(), ExtToMIME(filepath.Ext(f.Name())), err
 
 	case ImageSizeReduced:
 		f, mime, err := cache.QueryImage(si.Hash())
 		if err != nil {
-			return nil, "", err
+			return nil, 0, "", err
 		}
-		return f, mime, err
+		stat, err := f.Stat()
+		if err != nil {
+			return nil, 0, "", err
+		}
+		return f, stat.Size(), mime, err
 
 	case ImageSizeNano:
 		r := ioutil.NopCloser(bytes.NewReader([]byte(si.cacheEntry.NanoBitmap)))
-		return r, "image/bmp", nil
+		return r, int64(len(si.cacheEntry.NanoBitmap)), "image/bmp", nil
 	}
 
-	return nil, "", fmt.Errorf("Invalid image size %v", s)
+	return nil, 0, "", fmt.Errorf("Invalid image size %v", s)
 }
 
 func (si SourceFolderImage) String() string {

@@ -42,7 +42,7 @@ func ExtToMIME(ext string) string {
 // ImageToDataURI takes the result from FileContent and returns an data URI that can be embedded into HTML or CSS.
 // This will close the stream f.
 func ImageToDataURI(img Image) (string, error) {
-	f, mime, err := img.FileContent(ImageSizeNano)
+	f, _, mime, err := img.FileContent(ImageSizeNano)
 	if err != nil {
 		return "", fmt.Errorf("Couldn't get file of image %v: %w", img, err)
 	}

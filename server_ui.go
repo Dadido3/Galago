@@ -23,6 +23,7 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
+	"strconv"
 )
 
 var uiTemplates *template.Template
@@ -102,7 +103,7 @@ func (t *uiImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	imageFile, mime, err := image.FileContent(ImageSizeOriginal)
+	imageFile, size, mime, err := image.FileContent(ImageSizeOriginal)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -111,6 +112,7 @@ func (t *uiImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer imageFile.Close()
 
 	w.Header().Set("Content-Type", mime)
+	w.Header().Set("Content-Length", strconv.FormatInt(size, 10))
 	w.Header().Set("Cache-Control", "public, max-age=86400") // 1 Day
 
 	io.Copy(w, imageFile)
@@ -136,6 +138,33 @@ func (t *uiCachedImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Tracef("Sent cached image %v", f.Name())
 }
 
+type uiDownload struct{}
+
+func (t *uiDownload) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	element, err := RootElement.Traverse(r.URL.Path)
+	if err != nil {
+		log.Error(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
+	}
+
+	if img, ok := element.(Image); ok {
+		r, size, mime, err := img.FileContent(ImageSizeOriginal)
+		if err != nil {
+			return
+		}
+		defer r.Close()
+
+		w.Header().Set("Content-Disposition", "attachment; filename="+element.URLName())
+		w.Header().Set("Content-Length", strconv.FormatInt(size, 10))
+		w.Header().Set("Content-Type", mime)
+
+		io.Copy(w, r)
+		return
+	}
+
+	http.Error(w, "Requested file is neither an image nor any other supported element.", http.StatusBadRequest)
+}
+
 func serverUIInit() {
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(".", "ui", "static")))))
 
@@ -144,6 +173,7 @@ func serverUIInit() {
 
 	router.PathPrefix("/image/").Handler(http.StripPrefix("/image/", &uiImage{}))
 	router.PathPrefix("/cached/").Handler(http.StripPrefix("/cached/", &uiCachedImage{}))
+	router.PathPrefix("/download/").Handler(http.StripPrefix("/download/", &uiDownload{}))
 
 	router.Handle("/", http.StripPrefix("/", newUITemplate("gallery.gohtml")))
 	router.PathPrefix("/gallery/").Handler(http.StripPrefix("/gallery/", newUITemplate("gallery.gohtml")))

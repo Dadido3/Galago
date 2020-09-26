@@ -35,6 +35,10 @@
 				imageViewer.nextURL = {{ $next.URLName }};
 			{{ end }}{{ end }}
 
+			{{ if $element }}
+				imageViewer.downloadURL = "/download"+{{ $element.Path }}+"/";
+			{{ end }}
+
 			{{ $parent := $element.Parent }}
 			{{ if $parent }}
 				imageViewer.upURL = "/gallery"+{{ $parent.Path }}+"/";
