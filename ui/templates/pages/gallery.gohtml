@@ -23,12 +23,12 @@
 		{{ end }}
 		<a href="#" class="w3-bar-item w3-button"><i class="fa fa-download"></i></a>
 	</div>
-	<div class="overlay-container hero-album-title">
-		Name of the shitty thing
-	</div>
+	<div id="album-title" class="overlay-container hero-album-title"></div>
 </div>
 
-<album-list id="album-list"></album-list>
+<div class="w3-black" style="height: 4px;"></div>
+
+<album-list id="album-list" class="w3-flat-midnight-blue"></album-list>
 
 <gallery-list id="gallery-list"></gallery-list>
 
@@ -56,6 +56,11 @@
 				{{ $image := index $images 0 }}
 				hero.style.backgroundImage = "url(\"/cached/"+{{ $image.Hash }}+"\")";
 			{{ end }}
+
+			let albumTitleContainer = document.getElementById("album-title");
+			let albumTitle = {{ $element.Name }};
+			if (albumTitle == "") {albumTitle = "Overview";}
+			albumTitleContainer.textContent = albumTitle;
 
 			let galleryList = document.getElementById("gallery-list");
 			galleryList.value = [

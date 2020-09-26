@@ -1,8 +1,21 @@
+#main-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#above-footer {
+    flex-grow: 1;
+}
+
 .hidden {
     display: none !important;
 }
 
 .overlay-container {
-    background-color: gray;
-    opacity: 0.8;
+    background-color: rgba(44, 62, 80, 0.5);
+}
+
+.overlay-container>a {
+    background-color: transparent;
 }

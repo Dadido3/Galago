@@ -5,6 +5,7 @@
 	<title>{{ template "title" . }} | galago</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="/static/css/w3.css">
+	<link rel="stylesheet" href="/static/css/w3-colors-flat.css">
 	<link rel="stylesheet" href="/static/css/common.css">
 	<link rel="stylesheet" href="/static/css/gallery.css">
 	<link rel="stylesheet" href="/static/css/album.css">
@@ -17,9 +18,15 @@
 </head>
 
 <body>
-	<div class="w3-main w3-light-gray">
+	<div id="main-container" class="w3-main w3-black">
 
 		{{ template "content" . }}
+
+		<div id="above-footer"></div>
+
+		<div id="footer">
+			<span>Powered by <a href="https://github.com/Dadido3/galago">galago</a></span>
+		</div>
 
 	</div>
 

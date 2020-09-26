@@ -1,6 +1,7 @@
 album-preview {
 	position: relative;
 	background-size: cover;
+	background-position: center;
 }
 
 album-preview>div {
@@ -37,37 +38,55 @@ album-preview>div:nth-child(1)>img {
 	transform: translate(-80%, -80%) rotate(10deg);
 	-webkit-transform: translate(-80%, -80%) rotate(10deg);
 }
+
 album-preview:hover>div:nth-child(1)>img {
 	max-width: 50%;
 	max-height: 50%;
 	rotate: 5deg;
 	-webkit-rotate: 5deg;
 }
+
 album-preview>div:nth-child(2)>img {
 	transform: translate(-80%, 80%) rotate(-10deg);
 	-webkit-transform: translate(-80%, 80%) rotate(-10deg);
 }
+
 album-preview:hover>div:nth-child(2)>img {
 	rotate: -5deg;
 	-webkit-rotate: -5deg;
 }
+
 album-preview>div:nth-child(3)>img {
 	transform: translate(80%, -80%) rotate(5deg);
 	-webkit-transform: translate(80%, -80%) rotate(5deg);
 }
+
 album-preview:hover>div:nth-child(3)>img {
 	rotate: -5deg;
 	-webkit-rotate: -5deg;
 }
+
 album-preview>div:nth-child(4)>img {
 	transform: translate(80%, 80%) rotate(-15deg);
 	-webkit-transform: translate(80%, 80%) rotate(-15deg);
 }
+
 album-preview:hover>div:nth-child(4)>img {
 	rotate: 5deg;
 	-webkit-rotate: 5deg;
 }
+
 album-preview>div:nth-child(5)>img {
 	transform: translate(80%, 0) rotate(20deg);
 	-webkit-transform: translate(80%, 0) rotate(20deg);
+}
+
+#album-list {
+	display: flex;
+	justify-content: space-evenly;
+	flex-wrap: wrap;
+}
+
+#album-list>album-entry {
+	margin: 10px;
 }
