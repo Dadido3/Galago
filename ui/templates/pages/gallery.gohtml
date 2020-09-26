@@ -13,15 +13,13 @@
 {{ define "content" }}
 
 {{ $element := .RootElement.Traverse .Path }}
+{{ $parent := $element.Parent }}
 
 <div id="hero" class="w3-xlarge">
 	<div id="menu-container" class="overlay-container">
-		{{ $parent := $element.Parent }}
 		<a href="/" class="w3-bar-item w3-button"><i class="fa fa-home"></i></a>
-		{{ if $parent }}
-			<a href="/gallery{{ $parent.Path }}/" class="w3-bar-item w3-button"><i class="fas fa-level-up-alt"></i></a>
-		{{ end }}
-		<a href="#" class="w3-bar-item w3-button"><i class="fa fa-download"></i></a>
+		<a id="button-level-up" class="w3-bar-item w3-button w3-disabled"><i class="fas fa-level-up-alt"></i></a>
+		<a id="button-download" class="w3-bar-item w3-button w3-disabled"><i class="fa fa-download"></i></a>
 	</div>
 	<div id="album-title" class="overlay-container hero-album-title"></div>
 </div>
@@ -36,7 +34,19 @@
 <script>
 	class MainLogic {
 		constructor() {
-			{{ $element := .RootElement.Traverse .Path }}
+			let buttonLevelUp = document.getElementById("button-level-up");
+			{{ if $parent }}
+				let LevelUpURL = "/gallery{{ $parent.Path }}/";
+				buttonLevelUp.classList.remove("w3-disabled");
+				buttonLevelUp.href = encodeURI(LevelUpURL);
+			{{ end }}
+
+			let buttonDownload = document.getElementById("button-download");
+			{{ if $element }}
+				let downloadURL = "/download{{ $element.Path }}/";
+				buttonDownload.classList.remove("w3-disabled");
+				buttonDownload.href = encodeURI(downloadURL);
+			{{ end }}
 
 			let albumList = document.getElementById("album-list");
 			albumList.items = [

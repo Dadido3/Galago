@@ -18,6 +18,8 @@
 package main
 
 import (
+	"archive/zip"
+	"compress/flate"
 	"fmt"
 	"html/template"
 	"io"
@@ -127,6 +129,7 @@ func (t *uiCachedImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 	defer f.Close()
 
@@ -145,11 +148,15 @@ func (t *uiDownload) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 
+	// Handle download of single image files
 	if img, ok := element.(Image); ok {
 		r, size, mime, err := img.FileContent(ImageSizeOriginal)
 		if err != nil {
+			log.Error(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		defer r.Close()
@@ -159,6 +166,58 @@ func (t *uiDownload) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", mime)
 
 		io.Copy(w, r)
+		return
+	}
+
+	// Handle download of containers. This will pack all images contained in element into an archive and stream it to the browser.
+	if element.Container() {
+		w.Header().Set("Content-Disposition", "attachment; filename="+element.Name()+".zip")
+		w.Header().Set("Content-Type", "application/zip")
+
+		zw := zip.NewWriter(w)
+
+		zw.RegisterCompressor(zip.Deflate, func(out io.Writer) (io.WriteCloser, error) {
+			return flate.NewWriter(out, flate.NoCompression)
+		})
+
+		children, err := element.Children()
+		if err != nil {
+			log.Error(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		for _, child := range children {
+			if cImg, ok := child.(Image); ok {
+				cw, err := zw.Create(child.URLName())
+				if err != nil {
+					log.Error(err)
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+
+				cr, _, _, err := cImg.FileContent(ImageSizeOriginal)
+				if err != nil {
+					log.Error(err)
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+				defer cr.Close()
+
+				if _, err := io.Copy(cw, cr); err != nil {
+					log.Error(err)
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+			}
+		}
+
+		if err := zw.Close(); err != nil {
+			log.Error(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
 		return
 	}
 
