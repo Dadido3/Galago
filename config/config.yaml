@@ -3,7 +3,7 @@ Server:
 Cache:
     Path: "./cache/"
 Sources:
-    blabla:
-        Name: "Blbablaaasdd"
+    examples:
+        Name: "Examples"
         Type: folder
         Path: "./example-images/"
