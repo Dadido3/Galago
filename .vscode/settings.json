@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "Debugf",
+        "EXIF",
         "Embeddable",
         "Infof",
         "Lanczos",
@@ -14,9 +15,11 @@
         "nfnt",
         "semver",
         "sidebutton",
+        "tajtiattila",
         "topmiddle",
         "trackpad",
-        "xlarge"
+        "xlarge",
+        "xmpbase"
     ],
     "licenser.author": "David Vogel",
     "licenser.license": "GPLv2",

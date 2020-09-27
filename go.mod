@@ -14,4 +14,5 @@ require (
 	golang.org/x/image v0.0.0-20200801110659-972c09e46d76
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0
+	trimmer.io/go-xmp v0.0.0-20200923092433-f9b6ca6c4a87
 )

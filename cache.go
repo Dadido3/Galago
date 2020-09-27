@@ -25,10 +25,15 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/nfnt/resize"
 	"golang.org/x/image/bmp"
 	"gopkg.in/yaml.v2"
+
+	"trimmer.io/go-xmp/models/dc"
+	xmpbase "trimmer.io/go-xmp/models/xmp_base"
+	"trimmer.io/go-xmp/xmp"
 )
 
 // Cache manages the on disk cache for metadata and image files.
@@ -106,7 +111,7 @@ func (c *Cache) StoreImage(hash string, img image.Image) error {
 func (c Cache) PrepareAndStoreImage(imgElement Image) (*CacheEntry, error) {
 	hash := imgElement.Hash()
 
-	// Rely on the fact that ImageSizeOriginal should not be cached.
+	// Rely on the fact that ImageSizeOriginal should not be cached
 	file, _, _, err := imgElement.FileContent(ImageSizeOriginal)
 	if err != nil {
 		return nil, fmt.Errorf("Couldn't get original image from %v: %w", imgElement, err)
@@ -138,6 +143,37 @@ func (c Cache) PrepareAndStoreImage(imgElement Image) (*CacheEntry, error) {
 		Height:     img.Bounds().Dy(),
 	}
 
+	// Get metadata
+	file, _, _, err = imgElement.FileContent(ImageSizeOriginal)
+	if err != nil {
+		return nil, fmt.Errorf("Couldn't get original image from %v: %w", imgElement, err)
+	}
+	defer file.Close()
+
+	if d, err := xmp.Scan(file); err == nil {
+		// Retrieve some values from the XMP namespace
+		xmpNS := d.FindNs("xmp", "http://ns.adobe.com/xap/1.0/")
+		if xmpModel, ok := d.FindModel(xmpNS).(*xmpbase.XmpBase); ok {
+			// Rating
+			if rating, err := xmpModel.GetTag("Rating"); err == nil {
+				if ratingInt, err := strconv.ParseInt(rating, 10, 0); err == nil {
+					ce.Rating = int(ratingInt)
+				}
+			}
+		}
+
+		// Retrieve some values from the DC namespace
+		dcNS := d.FindNs("dc", "http://purl.org/dc/elements/1.1/")
+		if dcModel, ok := d.FindModel(dcNS).(*dc.DublinCore); ok {
+			// Title
+			ce.Title = dcModel.Title.Default()
+		}
+
+	} else {
+		log.Warnf("Couldn't read and parse metadata from %v: %w", imgElement, err)
+	}
+
+	// Store cache entry
 	if err := c.StoreCacheEntry(hash, ce); err != nil {
 		log.Warnf("Couldn't store cache entry for image %v: %v", imgElement, err)
 	}
@@ -147,6 +183,8 @@ func (c Cache) PrepareAndStoreImage(imgElement Image) (*CacheEntry, error) {
 
 // CacheEntry contains the metadata of an image.
 type CacheEntry struct {
+	Title         string // Title based on metadata
+	Rating        int    // -1: Rejected, 0: Unrated, 1-5: Rated
 	Width, Height int
 
 	NanoBitmap string // Byteslice of a BMP file containing a really small version of the image

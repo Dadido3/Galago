@@ -210,6 +210,10 @@ func (si SourceFolderImage) Container() bool {
 
 // Name returns the name that is shown to the user.
 func (si SourceFolderImage) Name() string {
+	if si.cacheEntry.Title != "" {
+		return si.cacheEntry.Title
+	}
+
 	return si.name
 }
 
