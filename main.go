@@ -86,6 +86,7 @@ func main() {
 	if err := conf.Get(".Cache.Path", &cachePath); err != nil {
 		log.Fatalf("Can't load cache path from config files: %v", err)
 	}
+	os.MkdirAll(cachePath, os.ModePerm)
 	cache = NewCache(cachePath)
 
 	// Add routes to the webserver
