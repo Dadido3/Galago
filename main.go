@@ -31,7 +31,6 @@ import (
 	_ "golang.org/x/image/bmp"
 
 	"github.com/Dadido3/configdb"
-	"github.com/coreos/go-semver/semver"
 	"github.com/gorilla/mux"
 	"github.com/mattn/go-colorable"
 	"github.com/sirupsen/logrus"
@@ -39,7 +38,6 @@ import (
 )
 
 var log = logrus.New()
-var version = semver.Must(semver.NewVersion("0.1.0"))
 var conf = configdb.NewOrPanic([]configdb.Storage{
 	configdb.UseYAMLFile(filepath.Join(".", "config", "config.yaml")),
 })
