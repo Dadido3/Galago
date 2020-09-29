@@ -170,7 +170,7 @@ func (c Cache) PrepareAndStoreImage(imgElement Image) (*CacheEntry, error) {
 		}
 
 	} else {
-		log.Warnf("Couldn't read and parse metadata from %v: %w", imgElement, err)
+		log.Warnf("Couldn't read and parse metadata from %v: %v", imgElement, err)
 	}
 
 	// Store cache entry
