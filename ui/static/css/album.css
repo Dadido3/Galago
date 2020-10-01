@@ -21,6 +21,7 @@ album-preview>div>img {
 	box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 	transition: max-width .5s, max-height .5s, rotate 1s, box-shadow .5s;
 	position: absolute;
+	z-index: 10;
 	top: 0;
 	bottom: 0;
 	left: 0;
@@ -85,6 +86,7 @@ album-preview>div:nth-child(5)>img {
 	display: flex;
 	justify-content: space-evenly;
 	flex-wrap: wrap;
+	overflow: hidden;
 }
 
 #album-list>album-entry {
