@@ -9,6 +9,10 @@
 	position: relative;
 }
 
+#image-viewer>div {
+	white-space: nowrap;
+}
+
 image-viewer {
 	display: block;
 	position: absolute;
