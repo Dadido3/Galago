@@ -29,6 +29,7 @@ type Image interface {
 	Height() int  // Height of the original image
 
 	FileContent() (r io.ReadCloser, size int64, mime string, err error) // Returns the original image file
+	CacheEntry() (*CacheEntry, error)                                   // Returns the cache entry of the image
 }
 
 // FilterImages takes a list of elements, and returns only the images.

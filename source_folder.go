@@ -39,6 +39,9 @@ type SourceFolder struct {
 	filePath      string
 }
 
+// Compile time check if SourceFolder implements Element.
+var _ Element = (*SourceFolder)(nil)
+
 // CreateSourceFolder returns a new instance of a folder source.
 func CreateSourceFolder(parent Element, index int, urlName string, c map[string]interface{}) (Element, error) {
 	var ok bool
@@ -114,13 +117,6 @@ func (s SourceFolder) Children() ([]Element, error) {
 					filePath: filepath.Join(s.filePath, file.Name()),
 					fileInfo: file,
 				}
-				cacheEntry, err := cache.QueryCacheEntryImage(img)
-				if err != nil {
-					log.Warnf("Couldn't generate cache entry for %v: %v", img, err)
-				}
-				if cacheEntry != nil {
-					img.cacheEntry = *cacheEntry
-				}
 				elements = append(elements, img)
 			}
 		}
@@ -167,8 +163,12 @@ type SourceFolderImage struct {
 	s             SourceFolder
 	filePath      string // The path to the file in the filesystem
 	fileInfo      os.FileInfo
-	cacheEntry    CacheEntry
+	cacheEntry    *CacheEntry
 }
+
+// Compile time check if SourceFolderImage implements Image and Element.
+var _ Element = (*SourceFolderImage)(nil)
+var _ Image = (*SourceFolderImage)(nil)
 
 // Parent returns the parent element, duh.
 func (si SourceFolderImage) Parent() Element {
@@ -199,8 +199,14 @@ func (si SourceFolderImage) Container() bool {
 
 // Name returns the name that is shown to the user.
 func (si SourceFolderImage) Name() string {
-	if si.cacheEntry.Title != "" {
-		return si.cacheEntry.Title
+	ce, err := si.CacheEntry()
+	if err != nil {
+		log.Errorf("Couldn't get or generate cache entry for %v: %v", si, err)
+		return si.name
+	}
+
+	if ce.Title != "" {
+		return ce.Title
 	}
 
 	return si.name
@@ -223,18 +229,54 @@ func (si SourceFolderImage) Hash() string {
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
+// CacheEntry returns the cache entry of the image.
+//
+// This function is similar to calling QueryCacheEntryImage with the image's hash.
+// But the cache entry is cached over the lifetime of this object, so it's more efficient than multiple cache queries.
+//
+// If no cache entry can be found, a new one will be generated.
+// This function will block and then return a valid cache entry, if one could be generated.
+// An error will be returned otherwise.
+func (si SourceFolderImage) CacheEntry() (*CacheEntry, error) {
+	if si.cacheEntry != nil {
+		return si.cacheEntry, nil
+	}
+
+	ce, err := cache.QueryCacheEntryImage(si)
+	if err != nil {
+		return nil, err
+	}
+	if ce != nil {
+		si.cacheEntry = ce
+	}
+
+	return ce, nil
+}
+
 // Width of the original image.
 //
 // This value is stored in the cache, so it is fast to get.
 func (si SourceFolderImage) Width() int {
-	return si.cacheEntry.Width
+	ce, err := si.CacheEntry()
+	if err != nil {
+		log.Errorf("Couldn't get or generate cache entry for %v: %v", si, err)
+		return 0
+	}
+
+	return ce.Width
 }
 
 // Height of the original image.
 //
 // This value is stored in the cache, so it is fast to get.
 func (si SourceFolderImage) Height() int {
-	return si.cacheEntry.Height
+	ce, err := si.CacheEntry()
+	if err != nil {
+		log.Errorf("Couldn't get or generate cache entry for %v: %v", si, err)
+		return 0
+	}
+
+	return ce.Height
 }
 
 // FileContent returns the compressed image file.
