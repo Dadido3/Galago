@@ -42,7 +42,12 @@ func ExtToMIME(ext string) string {
 // ImageToDataURI takes the result from FileContent and returns an data URI that can be embedded into HTML or CSS.
 // This will close the stream f.
 func ImageToDataURI(img Image) (string, error) {
-	f, _, mime, err := img.FileContent(ImageSizeNano)
+	ce, err := cache.QueryCacheEntryImage(img)
+	if err != nil {
+		return "", fmt.Errorf("Couldn't find cache entry for %v: %w", img, err)
+	}
+
+	f, _, mime, err := ce.NanoImage()
 	if err != nil {
 		return "", fmt.Errorf("Couldn't get file of image %v: %w", img, err)
 	}

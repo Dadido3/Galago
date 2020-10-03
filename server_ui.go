@@ -25,10 +25,13 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
+	"regexp"
 	"strconv"
 )
 
 var uiTemplates *template.Template
+
+var isAlphanumeric = regexp.MustCompile(`^[0-9A-Za-z]+$`).MatchString
 
 func init() {
 	uiTemplates = template.New("").Funcs(template.FuncMap{
@@ -105,7 +108,7 @@ func (t *uiImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	imageFile, size, mime, err := image.FileContent(ImageSizeOriginal)
+	imageFile, size, mime, err := image.FileContent()
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -125,7 +128,23 @@ func (t *uiImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type uiCachedImage struct{}
 
 func (t *uiCachedImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	f, mime, err := cache.QueryImage(r.URL.Path)
+	hash := r.URL.Path
+
+	// Make sure only alphanumeric hashes can be queried
+	if !isAlphanumeric(hash) {
+		log.Error("Invalid request. Tried to query cache element with hash %q", hash)
+		http.Error(w, "The hash can only be alphanumeric", http.StatusBadRequest)
+		return
+	}
+
+	ce, err := cache.QueryCacheEntryHash(hash)
+	if err != nil {
+		log.Error(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	f, size, mime, err := ce.ReducedImage()
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -134,11 +153,12 @@ func (t *uiCachedImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer f.Close()
 
 	w.Header().Set("Content-Type", mime)
+	w.Header().Set("Content-Length", strconv.FormatInt(size, 10))
 	w.Header().Set("Cache-Control", "public, max-age=2419200") // 4 weeks
 
 	io.Copy(w, f)
 
-	log.Tracef("Sent cached image %v", f.Name())
+	log.Tracef("Sent cached reduced image %q", r.URL.Path)
 }
 
 type uiDownload struct{}
@@ -153,7 +173,7 @@ func (t *uiDownload) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Handle download of single image files
 	if img, ok := element.(Image); ok {
-		r, size, mime, err := img.FileContent(ImageSizeOriginal)
+		r, size, mime, err := img.FileContent()
 		if err != nil {
 			log.Error(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -196,7 +216,7 @@ func (t *uiDownload) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
-				cr, _, _, err := cImg.FileContent(ImageSizeOriginal)
+				cr, _, _, err := cImg.FileContent()
 				if err != nil {
 					log.Error(err)
 					http.Error(w, err.Error(), http.StatusInternalServerError)

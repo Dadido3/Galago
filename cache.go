@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"image"
 	"image/jpeg"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -50,8 +51,8 @@ func NewCache(path string) *Cache {
 	}
 }
 
-// QueryCacheEntry returns a cache entry for a given hash, or an error if there is no cache element.
-func (c *Cache) QueryCacheEntry(hash string) (*CacheEntry, error) {
+// QueryCacheEntryHash returns a cache entry for a given hash, or an error if there is no cache element.
+func (c *Cache) QueryCacheEntryHash(hash string) (*CacheEntry, error) {
 	data, err := ioutil.ReadFile(filepath.Join(c.dirPath, fmt.Sprintf("%v.yaml", hash)))
 	if err != nil {
 		return nil, err
@@ -63,7 +64,27 @@ func (c *Cache) QueryCacheEntry(hash string) (*CacheEntry, error) {
 		return nil, err
 	}
 
+	ce.cache = c
+	ce.hash = hash
+
 	return ce, nil
+}
+
+// QueryCacheEntryImage returns a cache entry for a given image element, or an error if there is no cache element.
+//
+// When there is no cache entry, a new one based on the image will be generated.
+// This function will block and then return a valid cache entry, if one could be generated.
+// An error will be returned otherwise.
+func (c *Cache) QueryCacheEntryImage(img Image) (*CacheEntry, error) {
+	hash := img.Hash()
+
+	// Return an already existing cache entry if possible
+	if ce, err := c.QueryCacheEntryHash(hash); err == nil {
+		return ce, nil
+	}
+
+	// Generate new cache entry, and return it if possible
+	return cache.PrepareAndStoreImage(img)
 }
 
 // StoreCacheEntry saves a cache entry to disk.
@@ -81,38 +102,12 @@ func (c *Cache) StoreCacheEntry(hash string, ce *CacheEntry) error {
 	return nil
 }
 
-// QueryImage returns the image file for a given hash, or an error if there is no file.
-func (c *Cache) QueryImage(hash string) (*os.File, string, error) {
-	f, err := os.Open(filepath.Join(c.dirPath, fmt.Sprintf("%v.jpg", hash)))
-	if err != nil {
-		return nil, "", err
-	}
-
-	return f, "image/jpeg", nil
-}
-
-// StoreImage saves the given image to disk.
-func (c *Cache) StoreImage(hash string, img image.Image) error {
-	f, err := os.Create(filepath.Join(c.dirPath, fmt.Sprintf("%v.jpg", hash)))
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	err = jpeg.Encode(f, img, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // PrepareAndStoreImage takes an image file, prepares it for caching and writes it into the cache.
-func (c Cache) PrepareAndStoreImage(imgElement Image) (*CacheEntry, error) {
+func (c *Cache) PrepareAndStoreImage(imgElement Image) (*CacheEntry, error) {
 	hash := imgElement.Hash()
 
 	// Rely on the fact that ImageSizeOriginal should not be cached
-	file, _, _, err := imgElement.FileContent(ImageSizeOriginal)
+	file, _, _, err := imgElement.FileContent()
 	if err != nil {
 		return nil, fmt.Errorf("Couldn't get original image from %v: %w", imgElement, err)
 	}
@@ -126,25 +121,26 @@ func (c Cache) PrepareAndStoreImage(imgElement Image) (*CacheEntry, error) {
 	imgReduced := resize.Resize(0, 1080, img, resize.Lanczos3)
 	imgNano := resize.Resize(0, 8, img, resize.Lanczos3)
 
-	if err := cache.StoreImage(hash, imgReduced); err != nil {
-		return nil, fmt.Errorf("Couldn't store image %v to cache: %w", imgElement, err)
-	}
-
-	imgNanoBuf := new(bytes.Buffer)
-
 	// Encode uses a Writer, use a Buffer if you need the raw []byte
+	imgNanoBuf := new(bytes.Buffer)
 	if err := bmp.Encode(imgNanoBuf, imgNano); err != nil {
 		return nil, fmt.Errorf("Couldn't encode image %v as nano BMP: %w", imgElement, err)
 	}
 
 	ce := &CacheEntry{
+		cache:      c,
+		hash:       hash,
 		NanoBitmap: imgNanoBuf.String(),
 		Width:      img.Bounds().Dx(),
 		Height:     img.Bounds().Dy(),
 	}
 
+	if err := ce.SetReducedImage(hash, imgReduced); err != nil {
+		return nil, fmt.Errorf("Couldn't store image %v to cache: %w", imgElement, err)
+	}
+
 	// Get metadata
-	file, _, _, err = imgElement.FileContent(ImageSizeOriginal)
+	file, _, _, err = imgElement.FileContent()
 	if err != nil {
 		return nil, fmt.Errorf("Couldn't get original image from %v: %w", imgElement, err)
 	}
@@ -183,9 +179,65 @@ func (c Cache) PrepareAndStoreImage(imgElement Image) (*CacheEntry, error) {
 
 // CacheEntry contains the metadata of an image.
 type CacheEntry struct {
+	cache *Cache
+	hash  string // The hash of the cache entry
+
 	Title         string // Title based on metadata
 	Rating        int    // -1: Rejected, 0: Unrated, 1-5: Rated
 	Width, Height int
 
 	NanoBitmap string // Byteslice of a BMP file containing a really small version of the image
+}
+
+// ReducedImagePath returns the filepath to the reduced version of the image.
+func (ce *CacheEntry) ReducedImagePath() string {
+	if ce.cache == nil {
+		return ""
+	}
+	return filepath.Join(ce.cache.dirPath, fmt.Sprintf("%v.jpg", ce.hash))
+}
+
+// SetReducedImage saves the image as reduced version to the disk.
+func (ce *CacheEntry) SetReducedImage(hash string, img image.Image) error {
+	if ce.cache == nil {
+		return fmt.Errorf("Cache entry doesn't contain valid pointer to cache")
+	}
+
+	f, err := os.Create(ce.ReducedImagePath())
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	err = jpeg.Encode(f, img, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ReducedImage returns the reduced version of the cached image.
+func (ce *CacheEntry) ReducedImage() (r io.ReadCloser, size int64, mime string, err error) {
+	if ce.cache == nil {
+		return nil, 0, "", fmt.Errorf("Cache entry doesn't contain valid pointer to cache")
+	}
+
+	f, err := os.Open(ce.ReducedImagePath())
+	if err != nil {
+		return nil, 0, "", err
+	}
+	stat, err := f.Stat()
+	if err != nil {
+		return nil, 0, "", err
+	}
+	return f, stat.Size(), "image/jpeg", err
+}
+
+// NanoImage returns a really small version of the cached image.
+//
+// It's only a few pixels in legnth and width to be suitable for embedding.
+func (ce *CacheEntry) NanoImage() (r io.ReadCloser, size int64, mime string, err error) {
+	r = ioutil.NopCloser(bytes.NewReader([]byte(ce.NanoBitmap)))
+	return r, int64(len(ce.NanoBitmap)), "image/bmp", nil
 }
