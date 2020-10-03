@@ -27,6 +27,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"time"
 
 	"github.com/coreos/go-semver/semver"
 )
@@ -64,14 +65,14 @@ func newUITemplate(filename string) *uiTemplate {
 }
 
 func (t *uiTemplate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	timeStart := time.Now()
+
 	//clone := template.Must(uiTemplates.Clone())
 	//clone := template.Must(template.ParseGlob(filepath.Join(".", "ui", "templates", "*.*html")))
 	//clone = template.Must(clone.ParseGlob(filepath.Join(".", "ui", "templates", "webcomponents", "*.html")))
 	//t.Template = template.Must(clone.ParseFiles(filepath.Join(".", "ui", "templates", "pages", t.filename))) // TODO: Disable "debug" template parsing on each request
 
 	//path := mux.Vars(r)["path"]
-
-	log.Trace(r.URL.Path)
 
 	d := struct {
 		RootElement Album
@@ -89,13 +90,14 @@ func (t *uiTemplate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	log.Tracef("(IP: %v): Served template %q for URL %q in %v µs", r.RemoteAddr, t.filename, r.URL.Path, time.Now().Sub(timeStart).Microseconds())
 }
 
 type uiImage struct{}
 
 func (t *uiImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-	log.Trace(r.URL.Path)
+	timeStart := time.Now()
 
 	element, err := RootElement.Traverse(r.URL.Path)
 	if err != nil {
@@ -126,12 +128,13 @@ func (t *uiImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	io.Copy(w, imageFile)
 
-	log.Tracef("Sent original image %v", element.Name())
+	log.Tracef("(IP: %v): Served original image %v in %v µs", r.RemoteAddr, element.Name(), time.Now().Sub(timeStart).Microseconds())
 }
 
 type uiCachedImage struct{}
 
 func (t *uiCachedImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	timeStart := time.Now()
 	hash := r.URL.Path
 
 	// Make sure only alphanumeric hashes can be queried
@@ -162,12 +165,13 @@ func (t *uiCachedImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	io.Copy(w, f)
 
-	log.Tracef("Sent cached reduced image %q", r.URL.Path)
+	log.Tracef("(IP: %v): Sent reduced image %q in %v µs", r.RemoteAddr, r.URL.Path, time.Now().Sub(timeStart).Microseconds())
 }
 
 type uiDownload struct{}
 
 func (t *uiDownload) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	timeStart := time.Now()
 	element, err := RootElement.Traverse(r.URL.Path)
 	if err != nil {
 		log.Error(err)
@@ -177,19 +181,21 @@ func (t *uiDownload) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Handle download of single image files
 	if img, ok := element.(Image); ok {
-		r, size, mime, err := img.FileContent()
+		re, size, mime, err := img.FileContent()
 		if err != nil {
 			log.Error(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		defer r.Close()
+		defer re.Close()
 
 		w.Header().Set("Content-Disposition", "attachment; filename="+element.URLName())
 		w.Header().Set("Content-Length", strconv.FormatInt(size, 10))
 		w.Header().Set("Content-Type", mime)
 
-		io.Copy(w, r)
+		io.Copy(w, re)
+
+		log.Tracef("(IP: %v): Sent archived image %q in %v µs", r.RemoteAddr, element.Name(), time.Now().Sub(timeStart).Microseconds())
 		return
 	}
 
@@ -242,9 +248,11 @@ func (t *uiDownload) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		log.Tracef("(IP: %v): Sent %v archived images of %q in %v µs", r.RemoteAddr, len(children), element.Name(), time.Now().Sub(timeStart).Microseconds())
 		return
 	}
 
+	log.Tracef("(IP: %v): Requested file is neither an image nor any other supported element", r.RemoteAddr)
 	http.Error(w, "Requested file is neither an image nor any other supported element.", http.StatusBadRequest)
 }
 

@@ -27,6 +27,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 
 	"github.com/nfnt/resize"
 	"golang.org/x/image/bmp"
@@ -104,6 +105,7 @@ func (c *Cache) StoreCacheEntry(hash string, ce *CacheEntry) error {
 
 // PrepareAndStoreImage takes an image file, prepares it for caching and writes it into the cache.
 func (c *Cache) PrepareAndStoreImage(imgElement Image) (*CacheEntry, error) {
+	timeStart := time.Now()
 	hash := imgElement.Hash()
 
 	// Rely on the fact that ImageSizeOriginal should not be cached
@@ -173,6 +175,8 @@ func (c *Cache) PrepareAndStoreImage(imgElement Image) (*CacheEntry, error) {
 	if err := c.StoreCacheEntry(hash, ce); err != nil {
 		log.Warnf("Couldn't store cache entry for image %v: %v", imgElement, err)
 	}
+
+	log.Tracef("Generated cache entry %q in %v µs", hash, time.Now().Sub(timeStart).Microseconds())
 
 	return ce, nil
 }
