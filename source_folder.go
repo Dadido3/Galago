@@ -106,7 +106,7 @@ func (s SourceFolder) Children() ([]Element, error) {
 		} else {
 			// Is file
 			// Check if file extension is one of the supported formats
-			ext := filepath.Ext(file.Name())
+			ext := strings.ToLower(filepath.Ext(file.Name()))
 			if validExtensions[ext] {
 				img := &SourceFolderImage{
 					parent:   s,
