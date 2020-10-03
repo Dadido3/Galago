@@ -81,13 +81,9 @@ func (s SourceFolder) Index() int {
 
 // Children returns the folders and images of a source.
 func (s SourceFolder) Children() ([]Element, error) {
-	return s.childrenRecursive(s, s.filePath)
-}
-
-func (s SourceFolder) childrenRecursive(parent Element, path string) ([]Element, error) {
 	elements := []Element{}
 
-	files, err := ioutil.ReadDir(path)
+	files, err := ioutil.ReadDir(s.filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -95,17 +91,14 @@ func (s SourceFolder) childrenRecursive(parent Element, path string) ([]Element,
 	for _, file := range files {
 		if file.IsDir() {
 			// Is directory
-			album := &Album{
-				parent:  parent,
-				index:   len(elements),
-				name:    file.Name(),
-				urlName: strings.ToLower(file.Name()),
+			// Return a new SourceFolder object of the subfolder
+			album := &SourceFolder{
+				parent:   s,
+				index:    len(elements),
+				name:     file.Name(),
+				urlName:  strings.ToLower(file.Name()),
+				filePath: filepath.Join(s.filePath, file.Name()),
 			}
-			children, err := s.childrenRecursive(album, filepath.Join(path, file.Name()))
-			if err != nil {
-				return nil, err // Just return the error, otherwise the error message may get very long
-			}
-			album.children = children
 			elements = append(elements, album)
 		} else {
 			// Is file
@@ -113,12 +106,12 @@ func (s SourceFolder) childrenRecursive(parent Element, path string) ([]Element,
 			ext := filepath.Ext(file.Name())
 			if validExtensions[ext] {
 				img := &SourceFolderImage{
-					parent:   parent,
+					parent:   s,
 					index:    len(elements),
 					name:     file.Name(),
 					urlName:  strings.ToLower(file.Name()),
 					s:        s,
-					filePath: filepath.Join(path, file.Name()),
+					filePath: filepath.Join(s.filePath, file.Name()),
 					fileInfo: file,
 				}
 				cacheEntry, err := cache.QueryCacheEntryImage(img)
