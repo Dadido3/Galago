@@ -27,6 +27,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+
+	"github.com/coreos/go-semver/semver"
 )
 
 var uiTemplates *template.Template
@@ -73,9 +75,11 @@ func (t *uiTemplate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	d := struct {
 		RootElement Album
+		Version     *semver.Version
 		Path        string
 	}{
 		RootElement: RootElement,
+		Version:     version,
 		Path:        r.URL.Path,
 	}
 
