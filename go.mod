@@ -1,4 +1,4 @@
-module github.com/Dadido3/galago
+module github.com/Dadido3/Galago
 
 go 1.15
 

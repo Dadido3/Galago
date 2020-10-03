@@ -1,19 +1,19 @@
 // Copyright (C) 2020 David Vogel
 //
-// This file is part of galago.
+// This file is part of Galago.
 //
-// galago is free software: you can redistribute it and/or modify
+// Galago is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
 //
-// galago is distributed in the hope that it will be useful,
+// Galago is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with galago.  If not, see <http://www.gnu.org/licenses/>.
+// along with Galago.  If not, see <http://www.gnu.org/licenses/>.
 
 package main
 
@@ -177,7 +177,7 @@ func GetPreviewImages(e Element, n int) ([]Image, error) {
 }
 
 // ElementPath returns the absolute path of the element.
-// This will not return the file system path, but the path that an object can be addressed inside of galago.
+// This will not return the file system path, but the path that an object can be addressed inside of Galago.
 // This will include the root element, that has an empty name.
 //
 // Example output: /source123/cats/cat.jpg
