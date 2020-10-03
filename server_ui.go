@@ -132,7 +132,7 @@ func (t *uiCachedImage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Make sure only alphanumeric hashes can be queried
 	if !isAlphanumeric(hash) {
-		log.Error("Invalid request. Tried to query cache element with hash %q", hash)
+		log.Errorf("Invalid request. Tried to query cache element with hash %q", hash)
 		http.Error(w, "The hash can only be alphanumeric", http.StatusBadRequest)
 		return
 	}
