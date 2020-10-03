@@ -1,4 +1,4 @@
-# Galago
+# Galago [![Actions Status](https://github.com/Dadido3/Galago/workflows/Build%20and%20test/badge.svg)](https://github.com/Dadido3/Galago/actions)
 
 `Gallery + Go = Galago`
 
