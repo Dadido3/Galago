@@ -63,5 +63,7 @@ func init() {
 				log.Errorf("Couldn't create instance %q of source %q: %v", urlName, source, err)
 			}
 		}
+
+		log.Info("Loaded sources from configuration")
 	})
 }

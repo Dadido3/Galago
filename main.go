@@ -46,6 +46,11 @@ var validExtensions = map[string]bool{".jpg": true, ".jpeg": true}
 
 func main() {
 
+	var verbosity logrus.Level
+	if err := conf.Get(".Logging.Verbosity", &verbosity); err != nil {
+		log.Fatalf("Can't load verbosity from config files: %v", err)
+	}
+
 	// Logging
 	os.MkdirAll(filepath.Join(".", "log"), os.ModePerm)
 	rotateFileHook, err := rotatefilehook.NewRotateFileHook(rotatefilehook.RotateFileConfig{
@@ -53,7 +58,7 @@ func main() {
 		MaxSize:    50, // megabytes
 		MaxBackups: 3,
 		MaxAge:     365, //days
-		Level:      logrus.TraceLevel,
+		Level:      verbosity,
 		Formatter: &logrus.TextFormatter{
 			FullTimestamp:   true,
 			TimestampFormat: time.RFC3339,
@@ -70,7 +75,7 @@ func main() {
 
 	log.SetReportCaller(true)
 	log.AddHook(rotateFileHook)
-	log.SetLevel(logrus.TraceLevel)
+	log.SetLevel(verbosity)
 	log.SetOutput(colorable.NewColorableStdout())
 	log.SetFormatter(&logrus.TextFormatter{
 		ForceColors:     true,

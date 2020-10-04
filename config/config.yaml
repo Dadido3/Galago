@@ -2,6 +2,8 @@ Server:
     ListenAddress: :8090
 Cache:
     Path: "./cache/"
+Logging:
+    Verbosity: info # Possible values: panic fatal error warn info debug trace
 Sources:
     examples:
         Name: "Examples"
