@@ -165,6 +165,9 @@ func (c *Cache) PrepareAndStoreImage(imgElement Image) (*CacheEntry, error) {
 		if dcModel, ok := d.FindModel(dcNS).(*dc.DublinCore); ok {
 			// Title
 			ce.Title = dcModel.Title.Default()
+			ce.Tags = []string(dcModel.Subject)
+			ce.Creators = []string(dcModel.Creator)
+			ce.Description = dcModel.Description.Default()
 		}
 
 	} else {
@@ -183,14 +186,17 @@ func (c *Cache) PrepareAndStoreImage(imgElement Image) (*CacheEntry, error) {
 
 // CacheEntry contains the metadata of an image.
 type CacheEntry struct {
-	cache *Cache
-	hash  string // The hash of the cache entry
-
-	Title         string // Title based on metadata
-	Rating        int    // -1: Rejected, 0: Unrated, 1-5: Rated
+	cache         *Cache
+	hash          string // The hash of the cache entry
+	NanoBitmap    string // Byteslice of a BMP file containing a really small version of the image
 	Width, Height int
 
-	NanoBitmap string // Byteslice of a BMP file containing a really small version of the image
+	// Metadata
+	Title       string   // Title based on metadata
+	Description string   // Description based on metadata
+	Rating      int      // -1: Rejected, 0: Unrated, 1-5: Rated
+	Tags        []string // List of tags
+	Creators    []string // List of creators
 }
 
 // ReducedImagePath returns the filepath to the reduced version of the image.
