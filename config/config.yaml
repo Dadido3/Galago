@@ -7,3 +7,4 @@ Sources:
         Name: "Examples"
         Type: folder
         Path: "./example-images/"
+        Hidden: false

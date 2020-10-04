@@ -48,9 +48,14 @@ func (a Album) Path() string {
 	return ElementPath(a)
 }
 
-// Container returns whether an element can contain other elements or not.
-func (a Album) Container() bool {
+// IsContainer returns whether an element can contain other elements or not.
+func (a Album) IsContainer() bool {
 	return true
+}
+
+// IsHidden returns whether this element can be listed as child or not.
+func (a Album) IsHidden() bool {
+	return false
 }
 
 // Name returns the name that is shown to the user.

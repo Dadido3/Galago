@@ -37,6 +37,7 @@ type SourceFolder struct {
 	index         int
 	name, urlName string
 	filePath      string
+	hidden        bool
 }
 
 // Compile time check if SourceFolder implements Element.
@@ -63,12 +64,15 @@ func CreateSourceFolder(parent Element, index int, urlName string, c map[string]
 		return nil, fmt.Errorf("%q field is of the wrong type. Expected %T, got %T", "Name", path, pathInt)
 	}
 
+	hidden, _ := c["Hidden"].(bool)
+
 	return SourceFolder{
 		parent:   parent,
 		index:    index,
 		name:     name,
 		urlName:  urlName,
 		filePath: path,
+		hidden:   hidden,
 	}, nil
 }
 
@@ -131,9 +135,14 @@ func (s SourceFolder) Path() string {
 	return ElementPath(s)
 }
 
-// Container returns whether an element can contain other elements or not.
-func (s SourceFolder) Container() bool {
+// IsContainer returns whether an element can contain other elements or not.
+func (s SourceFolder) IsContainer() bool {
 	return true
+}
+
+// IsHidden returns whether this element can be listed as child or not.
+func (s SourceFolder) IsHidden() bool {
+	return s.hidden
 }
 
 // Name returns the name that is shown to the user.
@@ -192,8 +201,13 @@ func (si SourceFolderImage) Path() string {
 	return ElementPath(si)
 }
 
-// Container returns whether an element can contain other elements or not.
-func (si SourceFolderImage) Container() bool {
+// IsContainer returns whether an element can contain other elements or not.
+func (si SourceFolderImage) IsContainer() bool {
+	return false
+}
+
+// IsHidden returns whether this element can be listed as child or not.
+func (si SourceFolderImage) IsHidden() bool {
 	return false
 }
 

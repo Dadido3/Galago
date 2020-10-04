@@ -58,11 +58,13 @@
 			albumList.items = [
 				{{ $children := filterContainers $element.Children }}
 				{{ range $key, $value := $children }}
-					{name: {{ $value.Name }}, description: "aeaefaefaef", url: "/gallery"+{{ $value.Path }}+"/", images: [
-						{{ range $key, $image := (getPreviewImages $value 5) }}
-							{width: {{ $image.Width }}, height: {{ $image.Height }}, image: "/cached/"+{{ $image.Hash }} },
-						{{ end }}
-					]},
+					{{ if not $value.IsHidden }}
+						{name: {{ $value.Name }}, description: "aeaefaefaef", url: "/gallery"+{{ $value.Path }}+"/", images: [
+							{{ range $key, $image := (getPreviewImages $value 5) }}
+								{width: {{ $image.Width }}, height: {{ $image.Height }}, image: "/cached/"+{{ $image.Hash }} },
+							{{ end }}
+						]},
+					{{ end }}
 				{{ end }}
 			];
 

@@ -26,12 +26,12 @@
 			imageViewer.description = "aeaefaefaef";
 
 			{{ $previous := previousElement $element }}
-			{{ if $previous }}{{ if not $previous.Container }}
+			{{ if $previous }}{{ if not $previous.IsContainer }}
 				imageViewer.previousURL = {{ $previous.URLName }};
 			{{ end }}{{ end }}
 
 			{{ $next := nextElement $element }}
-			{{ if $next }}{{ if not $next.Container }}
+			{{ if $next }}{{ if not $next.IsContainer }}
 				imageViewer.nextURL = {{ $next.URLName }};
 			{{ end }}{{ end }}
 

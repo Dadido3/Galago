@@ -200,7 +200,7 @@ func (t *uiDownload) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Handle download of containers. This will pack all images contained in element into an archive and stream it to the browser.
-	if element.Container() {
+	if element.IsContainer() {
 		w.Header().Set("Content-Disposition", "attachment; filename="+element.Name()+".zip")
 		w.Header().Set("Content-Type", "application/zip")
 

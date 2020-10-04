@@ -28,7 +28,8 @@ type Element interface {
 	Index() int                            // Returns the index of the element in its parent children list
 	Children() ([]Element, error)          // Elements can contain more elements (Like sources or albums)
 	Path() string                          // Returns the absolute path of the element, but not the filesystem path
-	Container() bool                       // Returns whether an element can contain other elements or not
+	IsContainer() bool                     // Returns whether an element can contain other elements or not
+	IsHidden() bool                        // Returns whether an element is hidden. If it is, it can only be accessed when the url is known
 	Name() string                          // The name that is shown to the user
 	URLName() string                       // The name/identifier used in URLs
 	Traverse(path string) (Element, error) // Traverse the element's children with the given path
@@ -56,7 +57,7 @@ func FilterNonEmpty(ee []Element) []Element {
 func FilterContainers(ee []Element) []Element {
 	result := []Element{}
 	for _, element := range ee {
-		if element.Container() {
+		if element.IsContainer() {
 			result = append(result, element)
 		}
 	}
@@ -142,16 +143,30 @@ func NextElement(e Element) (Element, error) {
 	return nil, nil
 }
 
+// FilterNonHidden takes a list of elements, and returns only non hidden ones.
+func FilterNonHidden(ee []Element) []Element {
+	result := []Element{}
+	for _, element := range ee {
+		if !element.IsHidden() {
+			result = append(result, element)
+		}
+	}
+	return result
+}
+
 // GetPreviewImages tries to return up to n images that are contained inside the given element e.
 // This will iterate over all children until the needed amount of images is found.
+// Hidden children (images or containers) will be ignored, though.
 func GetPreviewImages(e Element, n int) ([]Image, error) {
 	result := []Image{}
 
-	// Fill result with direct children image elements
 	children, err := e.Children()
 	if err != nil {
 		return nil, err
 	}
+	children = FilterNonHidden(children)
+
+	// Fill result with direct children image elements
 	images := FilterImages(children)
 	for _, image := range images {
 		if len(result) >= n {
@@ -160,6 +175,7 @@ func GetPreviewImages(e Element, n int) ([]Image, error) {
 		result = append(result, image)
 	}
 
+	// Recursively go through child elements and get images from there
 	for _, child := range children {
 		if len(result) >= n {
 			return result, nil
