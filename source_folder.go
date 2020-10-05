@@ -24,6 +24,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/Dadido3/configdb/tree"
@@ -109,6 +110,12 @@ func (s *SourceFolder) Children() ([]Element, error) {
 		elements = append(elements, s.sourceTags)
 	}
 
+	// Sort descending by name
+	sort.Slice(files, func(i, j int) bool {
+		return files[i].Name() > files[j].Name()
+	})
+
+	// Add folders
 	for _, file := range files {
 		if file.IsDir() {
 			// Is directory
@@ -121,7 +128,12 @@ func (s *SourceFolder) Children() ([]Element, error) {
 				filePath: filepath.Join(s.filePath, file.Name()),
 			}
 			elements = append(elements, album)
-		} else {
+		}
+	}
+
+	// Add images
+	for _, file := range files {
+		if !file.IsDir() {
 			// Is file
 			// Check if file extension is one of the supported formats
 			ext := strings.ToLower(filepath.Ext(file.Name()))
