@@ -17,40 +17,43 @@
 
 package main
 
-import "github.com/Dadido3/configdb"
+import (
+	"github.com/Dadido3/configdb"
+	"github.com/Dadido3/configdb/tree"
+)
 
 // RootElement contains the root element of the tree.
-var RootElement = Album{}
+var RootElement = &Album{}
 
 func loadSources() {
 	// Initialize sources and register callback for config changes
 	conf.RegisterCallback([]string{".Sources"}, func(c *configdb.Config, modified, added, removed []string) {
-		var sourcesConf map[string]map[string]interface{}
+		var sourcesConf tree.Node
 		if err := c.Get(".Sources", &sourcesConf); err != nil {
 			log.Errorf("Error while reading configuration file: %v", err)
 			return
 		}
 
 		// Initialize and reset the sources
-		RootElement = Album{}
+		RootElement = &Album{}
 
-		for urlName, sourceConf := range sourcesConf {
-			var s interface{}
-			var ok bool
-			if s, ok = sourceConf["Type"]; !ok {
-				log.Errorf("Undefined source type of source entry %q", urlName)
+		for urlName := range sourcesConf {
+			var sourceConf tree.Node
+			if err := sourcesConf.Get("."+urlName, &sourceConf); err != nil {
+				log.Warnf("Error while reading configuration file: %v", err)
 				continue
 			}
 
-			var source string
-			if source, ok = s.(string); !ok {
-				log.Errorf("Unexpected type of the \"Type\" field of %q. Got %T, expected %T", urlName, s, source)
+			var sourceTypeName string
+			if err := sourceConf.Get(".Type", &sourceTypeName); err != nil {
+				log.Warnf("Error while reading configuration file: %v", err)
 				continue
 			}
 
 			var sourceType SourceType
-			if sourceType, ok = SourceTypes[source]; !ok {
-				log.Warnf("Unknown source type %q of %q", source, urlName)
+			var ok bool
+			if sourceType, ok = SourceTypes[sourceTypeName]; !ok {
+				log.Warnf("Unknown source type %q of %q", sourceTypeName, urlName)
 				continue
 			}
 
@@ -58,9 +61,9 @@ func loadSources() {
 			index := len(RootElement.children)
 			if sourceInstance, err := sourceType.create(RootElement, index, urlName, sourceConf); err == nil {
 				RootElement.children = append(RootElement.children, sourceInstance)
-				log.Debugf("Created new instance %q of source %q", urlName, source)
+				log.Debugf("Created new instance %q of source %q", urlName, sourceTypeName)
 			} else {
-				log.Errorf("Couldn't create instance %q of source %q: %v", urlName, source, err)
+				log.Errorf("Couldn't create instance %q of source %q: %v", urlName, sourceTypeName, err)
 			}
 		}
 

@@ -27,50 +27,57 @@ type Album struct {
 	children      []Element
 }
 
+// Compile time check if Album implements Element.
+var _ Element = (*Album)(nil)
+
 // Parent returns the parent element, duh.
-func (a Album) Parent() Element {
+func (a *Album) Parent() Element {
 	return a.parent
 }
 
 // Index returns the index of the element in its parent children list.
-func (a Album) Index() int {
+func (a *Album) Index() int {
 	return a.index
 }
 
 // Children returns the content of the album.
-func (a Album) Children() ([]Element, error) {
+func (a *Album) Children() ([]Element, error) {
 	return a.children, nil
 }
 
 // Path returns the absolute path of the element, but not the filesystem path.
 // For details see ElementPath.
-func (a Album) Path() string {
+func (a *Album) Path() string {
 	return ElementPath(a)
 }
 
 // IsContainer returns whether an element can contain other elements or not.
-func (a Album) IsContainer() bool {
+func (a *Album) IsContainer() bool {
 	return true
 }
 
 // IsHidden returns whether this element can be listed as child or not.
-func (a Album) IsHidden() bool {
+func (a *Album) IsHidden() bool {
 	return false
 }
 
 // Name returns the name that is shown to the user.
-func (a Album) Name() string {
+func (a *Album) Name() string {
 	return a.name
 }
 
 // URLName returns the name/identifier that is used in URLs.
-func (a Album) URLName() string {
+func (a *Album) URLName() string {
 	return a.urlName
 }
 
 // Traverse the element's children with the given path.
-func (a Album) Traverse(path string) (Element, error) {
+func (a *Album) Traverse(path string) (Element, error) {
 	return TraverseElements(a, path)
+}
+
+func (a *Album) String() string {
+	return fmt.Sprintf("{Album %q: %v children}", a.Path(), len(a.children))
 }
 
 // FilterAlbums takes a list of elements, and returns only the albums.
@@ -83,8 +90,4 @@ func FilterAlbums(ee []Element) []*Album {
 		}
 	}
 	return result
-}
-
-func (a Album) String() string {
-	return fmt.Sprintf("{Album %q: %v children}", a.Path(), len(a.children))
 }

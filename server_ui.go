@@ -75,7 +75,7 @@ func (t *uiTemplate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	//path := mux.Vars(r)["path"]
 
 	d := struct {
-		RootElement Album
+		RootElement *Album
 		Version     *semver.Version
 		Path        string
 	}{

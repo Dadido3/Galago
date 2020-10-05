@@ -17,15 +17,19 @@
 
 package main
 
+import (
+	"github.com/Dadido3/configdb/tree"
+)
+
 // SourceType represents a type of a source.
 type SourceType struct {
-	create func(parent Element, index int, rlName string, c map[string]interface{}) (Element, error) // Create an instance of a source element.
+	create func(parent Element, index int, rlName string, c tree.Node) (Element, error) // Create an instance of a source element.
 }
 
 // SourceTypes contains all possible source types.
 var SourceTypes = map[string]SourceType{}
 
-func registerSourceType(name string, create func(parent Element, index int, urlName string, c map[string]interface{}) (Element, error)) {
+func registerSourceType(name string, create func(parent Element, index int, urlName string, c tree.Node) (Element, error)) {
 	SourceTypes[name] = SourceType{
 		create: create,
 	}
