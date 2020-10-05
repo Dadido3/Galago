@@ -19,6 +19,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/Dadido3/configdb/tree"
 )
@@ -129,9 +130,19 @@ func (s *SourceTags) Children() ([]Element, error) {
 		}
 	}
 
+	tagsSorted := []string{}
+	for tagName := range tags {
+		tagsSorted = append(tagsSorted, tagName)
+	}
+	sort.Strings(tagsSorted)
+	sort.SliceStable(tagsSorted, func(i, j int) bool {
+		return len(tags[tagsSorted[i]]) > len(tags[tagsSorted[j]])
+	})
+
 	// Create albums by tag list
 	elements := []Element{}
-	for tagName, tagElements := range tags {
+	for _, tagName := range tagsSorted {
+		tagElements := tags[tagName]
 		elements = append(elements, &Album{
 			parent:   s,
 			name:     tagName,
