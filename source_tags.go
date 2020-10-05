@@ -79,16 +79,11 @@ func (s *SourceTags) Index() int {
 
 // Children returns the folders and images of a source.
 func (s *SourceTags) Children() ([]Element, error) {
-	tags := map[string][]Element{}    // List of tags with their elements
-	visited := map[Element]struct{}{} // To prevent duplicates and recursion
+	tags := map[string][]Element{}         // List of tags with their elements
+	visited := map[Element]struct{}{s: {}} // To prevent duplicates and recursion
 
 	var recursive func(e Element) error
 	recursive = func(e Element) error {
-		// Ignore self
-		if self, ok := e.(*SourceTags); ok && self == s {
-			return nil
-		}
-
 		// Check for duplicates and prevent recursion
 		if _, ok := visited[e]; ok {
 			return nil
