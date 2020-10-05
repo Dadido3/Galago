@@ -97,6 +97,8 @@ func main() {
 	// Add routes to the webserver
 	serverUIInit()
 
+	loadSources()
+
 	log.Infof("Galago %v started", version)
 
 	var addr string

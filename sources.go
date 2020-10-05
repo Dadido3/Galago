@@ -22,7 +22,7 @@ import "github.com/Dadido3/configdb"
 // RootElement contains the root element of the tree.
 var RootElement = Album{}
 
-func init() {
+func loadSources() {
 	// Initialize sources and register callback for config changes
 	conf.RegisterCallback([]string{".Sources"}, func(c *configdb.Config, modified, added, removed []string) {
 		var sourcesConf map[string]map[string]interface{}
