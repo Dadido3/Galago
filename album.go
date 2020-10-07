@@ -30,6 +30,16 @@ type Album struct {
 // Compile time check if Album implements Element.
 var _ Element = (*Album)(nil)
 
+// Clone returns a clone with the given parent and index set
+func (a *Album) Clone(parent Element, index int) Element {
+	clone := *a
+
+	clone.parent = parent
+	clone.index = index
+
+	return &clone
+}
+
 // Parent returns the parent element, duh.
 func (a *Album) Parent() Element {
 	return a.parent

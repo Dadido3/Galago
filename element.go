@@ -24,15 +24,16 @@ import (
 
 // Element represents either a source, an album or an image.
 type Element interface {
-	Parent() Element                       // Returns the parent element
-	Index() int                            // Returns the index of the element in its parent children list
-	Children() ([]Element, error)          // Elements can contain more elements (Like sources or albums)
-	Path() string                          // Returns the absolute path of the element, but not the filesystem path
-	IsContainer() bool                     // Returns whether an element can contain other elements or not
-	IsHidden() bool                        // Returns whether an element is hidden. If it is, it can only be accessed when the url is known
-	Name() string                          // The name that is shown to the user
-	URLName() string                       // The name/identifier used in URLs
-	Traverse(path string) (Element, error) // Traverse the element's children with the given path
+	Clone(parent Element, index int) Element // Returns a clone with the given parent and index set
+	Parent() Element                         // Returns the parent element
+	Index() int                              // Returns the index of the element in its parent children list
+	Children() ([]Element, error)            // Elements can contain more elements (Like sources or albums)
+	Path() string                            // Returns the absolute path of the element, but not the filesystem path
+	IsContainer() bool                       // Returns whether an element can contain other elements or not
+	IsHidden() bool                          // Returns whether an element is hidden. If it is, it can only be accessed when the url is known
+	Name() string                            // The name that is shown to the user
+	URLName() string                         // The name/identifier used in URLs
+	Traverse(path string) (Element, error)   // Traverse the element's children with the given path
 }
 
 // FilterNonEmpty takes a list of elements, and returns only elements that contain something else.

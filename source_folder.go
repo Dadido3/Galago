@@ -86,6 +86,16 @@ func CreateSourceFolder(parent Element, index int, urlName string, c tree.Node) 
 	return s, nil
 }
 
+// Clone returns a clone with the given parent and index set
+func (s *SourceFolder) Clone(parent Element, index int) Element {
+	clone := *s
+
+	clone.parent = parent
+	clone.index = index
+
+	return &clone
+}
+
 // Parent returns the parent element, duh.
 func (s *SourceFolder) Parent() Element {
 	return s.parent
@@ -204,6 +214,16 @@ type SourceFolderImage struct {
 // Compile time check if SourceFolderImage implements Image and Element.
 var _ Element = (*SourceFolderImage)(nil)
 var _ Image = (*SourceFolderImage)(nil)
+
+// Clone returns a clone with the given parent and index set
+func (si *SourceFolderImage) Clone(parent Element, index int) Element {
+	clone := *si
+
+	clone.parent = parent
+	clone.index = index
+
+	return &clone
+}
 
 // Parent returns the parent element, duh.
 func (si *SourceFolderImage) Parent() Element {

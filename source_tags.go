@@ -68,6 +68,16 @@ func CreateSourceTags(parent Element, index int, urlName string, c tree.Node) (E
 	}, nil
 }
 
+// Clone returns a clone with the given parent and index set
+func (s *SourceTags) Clone(parent Element, index int) Element {
+	clone := *s
+
+	clone.parent = parent
+	clone.index = index
+
+	return &clone
+}
+
 // Parent returns the parent element, duh.
 func (s *SourceTags) Parent() Element {
 	return s.parent
@@ -142,14 +152,16 @@ func (s *SourceTags) Children() ([]Element, error) {
 	// Create albums by tag list
 	elements := []Element{}
 	for _, tagName := range tagsSorted {
-		tagElements := tags[tagName]
-		elements = append(elements, &Album{
-			parent:   s,
-			name:     tagName,
-			urlName:  tagName,
-			index:    len(elements),
-			children: tagElements,
-		})
+		album := &Album{
+			parent:  s,
+			name:    tagName,
+			urlName: tagName,
+			index:   len(elements),
+		}
+		for _, tagElement := range tags[tagName] {
+			album.children = append(album.children, tagElement.Clone(album, len(album.children)))
+		}
+		elements = append(elements, album)
 	}
 
 	return elements, nil
