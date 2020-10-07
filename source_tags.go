@@ -45,7 +45,7 @@ type SourceTags struct {
 // Compile time check if SourceTags implements Element.
 var _ Element = (*SourceTags)(nil)
 
-// CreateSourceTags returns a new instance the source.
+// CreateSourceTags returns a new instance of the source.
 func CreateSourceTags(parent Element, index int, urlName string, c tree.Node) (Element, error) {
 	var name string
 	if err := c.Get(".Name", &name); err != nil {
@@ -137,6 +137,7 @@ func (s *SourceTags) Children() ([]Element, error) {
 		element, err := RootElement.Traverse(internalPath)
 		if err != nil {
 			log.Warnf("Internal path %q not found: %v", internalPath, err)
+			continue
 		}
 		if err := recursive(element); err != nil {
 			return nil, err
