@@ -39,6 +39,7 @@ type SourceTags struct {
 	name, urlName string
 	internalPaths []string
 	hidden        bool
+	home          bool
 }
 
 // Compile time check if SourceTags implements Element.
@@ -52,6 +53,7 @@ func CreateSourceTags(parent Element, index int, urlName string, c tree.Node) (E
 	}
 
 	hidden, _ := c["Hidden"].(bool)
+	home, _ := c["Home"].(bool)
 
 	var paths []string
 	if err := c.Get(".InternalPaths", &paths); err != nil {
@@ -65,6 +67,7 @@ func CreateSourceTags(parent Element, index int, urlName string, c tree.Node) (E
 		urlName:       urlName,
 		internalPaths: paths,
 		hidden:        hidden,
+		home:          home,
 	}, nil
 }
 
@@ -181,6 +184,11 @@ func (s *SourceTags) IsContainer() bool {
 // IsHidden returns whether this element can be listed as child or not.
 func (s *SourceTags) IsHidden() bool {
 	return s.hidden
+}
+
+// IsHome returns whether an element should be linked by the home button or not.
+func (s *SourceTags) IsHome() bool {
+	return s.home
 }
 
 // Name returns the name that is shown to the user.

@@ -41,6 +41,7 @@ type SourceFolder struct {
 	name, urlName string
 	filePath      string
 	hidden        bool
+	home          bool
 	sourceTags    *SourceTags
 }
 
@@ -55,6 +56,7 @@ func CreateSourceFolder(parent Element, index int, urlName string, c tree.Node) 
 	}
 
 	hidden, _ := c["Hidden"].(bool)
+	home, _ := c["Home"].(bool)
 
 	var path string
 	if err := c.Get(".Path", &path); err != nil {
@@ -68,6 +70,7 @@ func CreateSourceFolder(parent Element, index int, urlName string, c tree.Node) 
 		urlName:  urlName,
 		filePath: path,
 		hidden:   hidden,
+		home:     home,
 	}
 
 	// Add tags source pointing towards the source folder itself
@@ -181,6 +184,11 @@ func (s *SourceFolder) IsHidden() bool {
 	return s.hidden
 }
 
+// IsHome returns whether an element should be linked by the home button or not.
+func (s *SourceFolder) IsHome() bool {
+	return s.home
+}
+
 // Name returns the name that is shown to the user.
 func (s *SourceFolder) Name() string {
 	return s.name
@@ -254,6 +262,11 @@ func (si *SourceFolderImage) IsContainer() bool {
 
 // IsHidden returns whether this element can be listed as child or not.
 func (si *SourceFolderImage) IsHidden() bool {
+	return false
+}
+
+// IsHome returns whether an element should be linked by the home button or not.
+func (si *SourceFolderImage) IsHome() bool {
 	return false
 }
 

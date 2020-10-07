@@ -71,6 +71,11 @@ func (a *Album) IsHidden() bool {
 	return false
 }
 
+// IsHome returns whether an element should be linked by the home button or not.
+func (a *Album) IsHome() bool {
+	return false
+}
+
 // Name returns the name that is shown to the user.
 func (a *Album) Name() string {
 	return a.name

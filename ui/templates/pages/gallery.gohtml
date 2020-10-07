@@ -13,11 +13,12 @@
 {{ define "content" }}
 
 {{ $element := .RootElement.Traverse .Path }}
+{{ $homeElement := getHomeElement $element }}
 {{ $parent := $element.Parent }}
 
 <div id="hero" class="w3-xlarge">
 	<div id="menu-container" class="overlay-container">
-		<a href="/" class="w3-bar-item w3-button"><i class="fa fa-home"></i></a>
+		<a href="/gallery{{ $homeElement.Path }}/" class="w3-bar-item w3-button"><i class="fa fa-home"></i></a>
 		<a id="button-level-up" class="w3-bar-item w3-button w3-disabled"><i class="fas fa-level-up-alt"></i></a>
 		<a id="button-download" class="w3-bar-item w3-button w3-disabled"><i class="fa fa-download"></i></a>
 	</div>

@@ -46,6 +46,7 @@ func init() {
 		"previousElement":  PreviousElement,
 		"nextElement":      NextElement,
 		"getPreviewImages": GetPreviewImages,
+		"getHomeElement":   GetHomeElement,
 	})
 
 	uiTemplates = template.Must(uiTemplates.ParseGlob(filepath.Join(".", "ui", "templates", "*.*html")))

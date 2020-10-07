@@ -11,3 +11,4 @@ Sources:
         Path: "./example-images/"
         Hidden: false
         Tags: true
+        Home: false

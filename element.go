@@ -31,6 +31,7 @@ type Element interface {
 	Path() string                            // Returns the absolute path of the element, but not the filesystem path
 	IsContainer() bool                       // Returns whether an element can contain other elements or not
 	IsHidden() bool                          // Returns whether an element is hidden. If it is, it can only be accessed when the url is known
+	IsHome() bool                            // Returns whether an element should be linked by the home button or not
 	Name() string                            // The name that is shown to the user
 	URLName() string                         // The name/identifier used in URLs
 	Traverse(path string) (Element, error)   // Traverse the element's children with the given path
@@ -205,4 +206,19 @@ func ElementPath(e Element) string {
 		return e.URLName()
 	}
 	return strings.Join([]string{ElementPath(parent), e.URLName()}, "/")
+}
+
+// GetHomeElement traverses the tree for the next home element.
+// This will go recursively through the parents of the given element and return any element that has IsHome set to true.
+// If no element was found, the root element of that tree will be returned.
+func GetHomeElement(e Element) Element {
+	if e.IsHome() {
+		return e
+	}
+
+	if parent := e.Parent(); parent != nil {
+		return GetHomeElement(parent)
+	}
+
+	return e
 }
