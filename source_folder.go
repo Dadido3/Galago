@@ -74,15 +74,26 @@ func CreateSourceFolder(parent Element, index int, urlName string, c tree.Node) 
 	}
 
 	// Add tags source pointing towards the source folder itself
-	tags, _ := c["Tags"].(bool)
+	tagsValue, tags := c["Tags"]
 	if tags {
-		s.sourceTags = &SourceTags{
-			parent:        s,
-			index:         0, // Assume it's always placed at the first position
-			name:          "Tags",
-			urlName:       "_tags_",
-			internalPaths: []string{strings.TrimPrefix(s.Path(), "/")},
-			hidden:        false,
+		name, hidden, enabled := "", false, false
+
+		switch value := tagsValue.(type) {
+		case string:
+			name, hidden, enabled = value, false, true
+		case bool:
+			name, hidden, enabled = "Tags", true, value
+		}
+
+		if enabled {
+			s.sourceTags = &SourceTags{
+				parent:        s,
+				index:         0, // Assume it's always placed at the first position
+				name:          name,
+				urlName:       "_tags_",
+				internalPaths: []string{strings.TrimPrefix(s.Path(), "/")},
+				hidden:        hidden,
+			}
 		}
 	}
 

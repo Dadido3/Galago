@@ -10,5 +10,5 @@ Sources:
         Type: folder
         Path: "./example-images/"
         Hidden: false
-        Tags: true
+        Tags: "Tags"
         Home: false
