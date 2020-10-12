@@ -28,4 +28,4 @@ jobs:
         goarch: ${{ matrix.goarch }}
         goversion: "https://golang.org/dl/go1.15.2.linux-amd64.tar.gz"
         ldflags: -X 'main.versionString=${{ github.event.release.tag_name }}'
-        extra_files: LICENSE README.md ui example-images images config
+        extra_files: LICENSE README.md ui example-images images config service
