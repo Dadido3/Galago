@@ -32,48 +32,73 @@ import (
 	"github.com/coreos/go-semver/semver"
 )
 
-var uiTemplates *template.Template
+var templateFuncmap = template.FuncMap{
+	"filterAlbums":     FilterAlbums,
+	"filterImages":     FilterImages,
+	"filterNonEmpty":   FilterNonEmpty,
+	"filterContainers": FilterContainers,
+	"imageToDataURI":   ImageToDataURI,
+	"previousElement":  PreviousElement,
+	"nextElement":      NextElement,
+	"getPreviewImages": GetPreviewImages,
+	"getHomeElement":   GetHomeElement,
+}
 
 var isAlphanumeric = regexp.MustCompile(`^[0-9A-Za-z]+$`).MatchString
 
-func init() {
-	uiTemplates = template.New("").Funcs(template.FuncMap{
-		"filterAlbums":     FilterAlbums,
-		"filterImages":     FilterImages,
-		"filterNonEmpty":   FilterNonEmpty,
-		"filterContainers": FilterContainers,
-		"imageToDataURI":   ImageToDataURI,
-		"previousElement":  PreviousElement,
-		"nextElement":      NextElement,
-		"getPreviewImages": GetPreviewImages,
-		"getHomeElement":   GetHomeElement,
-	})
-
-	uiTemplates = template.Must(uiTemplates.ParseGlob(filepath.Join(".", "ui", "templates", "*.*html")))
-	uiTemplates = template.Must(uiTemplates.ParseGlob(filepath.Join(".", "ui", "templates", "webcomponents", "*.html")))
-}
-
 type uiTemplate struct {
-	Template *template.Template
+	template *template.Template
 
 	filename string
 }
 
 func newUITemplate(filename string) *uiTemplate {
-	clone := template.Must(uiTemplates.Clone())
-	template := template.Must(clone.ParseFiles(filepath.Join(".", "ui", "templates", "pages", filename)))
-	return &uiTemplate{Template: template, filename: filename}
+	return &uiTemplate{filename: filename}
+}
+
+// Template returns the template that should be used for rendering.
+func (t *uiTemplate) Template() (*template.Template, error) {
+	// Only load and parse templates once!
+	if t.template != nil {
+		return t.template, nil
+	}
+
+	tpl := template.New("").Funcs(templateFuncmap)
+
+	var err error
+	fp := filepath.Join(".", "ui", "templates", "*.*html")
+	if tpl, err = tpl.ParseGlob(fp); err != nil {
+		return nil, fmt.Errorf("Couldn't parse templates from %q: %w", fp, err)
+	}
+
+	fp = filepath.Join(".", "ui", "templates", "webcomponents", "*.html")
+	if tpl, err = tpl.ParseGlob(fp); err != nil {
+		return nil, fmt.Errorf("Couldn't parse templates from %q: %w", fp, err)
+	}
+
+	fp = filepath.Join(".", "ui", "templates", "pages", t.filename)
+	if tpl, err = tpl.ParseFiles(fp); err != nil {
+		return nil, fmt.Errorf("Couldn't parse templates from %q: %w", fp, err)
+	}
+
+	// Store template
+	t.template = tpl
+
+	return tpl, nil
 }
 
 func (t *uiTemplate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	timeStart := time.Now()
 
-	//clone := template.Must(uiTemplates.Clone())
-	//clone := template.Must(template.ParseGlob(filepath.Join(".", "ui", "templates", "*.*html")))
-	//clone = template.Must(clone.ParseGlob(filepath.Join(".", "ui", "templates", "webcomponents", "*.html")))
-	//t.Template = template.Must(clone.ParseFiles(filepath.Join(".", "ui", "templates", "pages", t.filename))) // TODO: Disable "debug" template parsing on each request
-
 	//path := mux.Vars(r)["path"]
+
+	var tpl *template.Template
+	var err error
+	if tpl, err = t.Template(); err != nil {
+		log.Error(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	d := struct {
 		RootElement *Album
@@ -85,7 +110,7 @@ func (t *uiTemplate) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Path:        r.URL.Path,
 	}
 
-	if err := t.Template.ExecuteTemplate(w, "base.gohtml", d); err != nil {
+	if err := tpl.ExecuteTemplate(w, "base.gohtml", d); err != nil {
 		err = fmt.Errorf("Error executing template %q: %w", "base.gohtml", err)
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
