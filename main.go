@@ -42,7 +42,7 @@ var conf = configdb.NewOrPanic([]configdb.Storage{
 	configdb.UseYAMLFile(filepath.Join(".", "config", "config.yaml")),
 })
 var router = mux.NewRouter()
-var validExtensions = map[string]bool{".jpg": true, ".jpeg": true}
+var validExtensions = map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".bmp": true}
 
 func main() {
 
