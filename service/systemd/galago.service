@@ -1,0 +1,17 @@
+# This unit file assumes that galago is installed in /root/galago/
+# It is good practice to change the user from root to something less priviledged and install galago somewhere else.
+
+[Unit]
+Description=Galago image gallery server
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+WorkingDirectory=/root/galago
+ExecStart=/root/galago/Galago
+
+[Install]
+WantedBy=multi-user.target
