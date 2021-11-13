@@ -17,7 +17,9 @@
 				this.items = items;
 
 				this.innerHTML = "";
-				this.style.backgroundImage = "url(\"" + encodeURI(items[0].image) + "\")";
+				if (items.length > 0) {
+					this.style.backgroundImage = "url(\"" + encodeURI(items[0].image) + "\")";
+				};
 				let that = this;
 				this.items.forEach(function (item, index) {
 					if (index == 0) return;
